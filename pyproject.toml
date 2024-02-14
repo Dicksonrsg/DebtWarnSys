@@ -1,0 +1,37 @@
+[tool.poetry]
+name = "debtwarnsys"
+version = "0.1.0"
+description = "TCC project - Django version"
+authors = ["Dickson R <>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+Django = "^4.2.5"
+mysql-connector-python = "^8.3.0"
+python-dotenv = "^1.0.1"
+pymysql = "^1.1.0"
+cryptography = "^42.0.2"
+commitizen = "^3.14.1"
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.9.1"
+flake8 = "^6.1.0"
+isort = "^5.12.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+version = "0.1.0"
+tag_format = "v$version"
+version_files = [
+    "VERSION",
+    "setup.py",
+    "pyproject.toml:version"
+]
+bump_message = "bump: version $current_version → $new_version"
+update_changelog_on_bump = true
+annotated_tag = true
