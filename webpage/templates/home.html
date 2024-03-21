@@ -2,9 +2,29 @@
 
 {% block content %}
 
-<div class="col-md-6 offset-md-3">
     {% if user.is_authenticated %}
-    <h1>Well, well you're loged in</h1>
+    <h1>Company</h1>
+
+    <table class="table table-hover">
+        <thead>
+          <tr>
+            <th scope="col">Name:</th>
+            <th scope="col">CNPJ</th>
+            <th scope="col">Address</th>
+          </tr>
+        </thead>
+        <tbody>
+            {% if companies %}
+            {% for company in companies %}
+                <tr>
+                    <td>{{company.company_name}}</td>
+                    <td>{{company.cnpj}}</td>
+                    <td>{{company.address.street}}</td>
+                </tr>
+            {% endfor %}
+        {% endif %}
+        </tbody>
+      </table>
 
     {% else %}
         <h1>Log in</h1>
@@ -23,6 +43,5 @@
             <button type="submit" class="btn btn-secondary">Enter</button>  
         </form>
     {% endif %}
-</div>
 
 {% endblock content %}

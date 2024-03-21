@@ -10,7 +10,7 @@ class Address(models.Model):
     neighbourhood = models.CharField(max_length=60)
     state = models.CharField(max_length=140)
     country = models.CharField(max_length=14)
-    details = models.CharField(max_length=140)
+    details = models.CharField(max_length=140, blank=True, default='')
     
 
 class Person(models.Model):
@@ -59,6 +59,7 @@ class Debt(models.Model):
     contract = models.CharField(max_length=70)
     due_date = models.DateField()
     status = models.CharField(max_length=70)
+    value = models.FloatField(default=0.00)
     creditor = models.ForeignKey(Company, on_delete = models.CASCADE)
     debtor = models.ForeignKey(Debtor, on_delete = models.CASCADE)
     

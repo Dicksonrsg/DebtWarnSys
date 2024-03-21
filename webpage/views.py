@@ -3,11 +3,13 @@ from django.http import HttpRequest
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from .forms import SignUpForm
-
+from .models import Company
 
 def home(request: HttpRequest):
-    # check to see if logging in
-    # if this doesnt work try removing the type in def
+    
+    companies = Company.objects.all()
+    
+
     if request.method == 'POST':
         email_address = request.POST['email_address']
         password = request.POST['password']
@@ -21,7 +23,7 @@ def home(request: HttpRequest):
             messages.success(request, "You are not an active user, contact us")
             return redirect('home')
     else:
-        return render(request, 'home.html', {})
+        return render(request, 'home.html', {'companies':companies})
 
 
 def login_user(request: HttpRequest):
