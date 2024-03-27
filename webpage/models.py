@@ -2,6 +2,9 @@ from django.db import models
 
 # https://docs.djangoproject.com/en/5.0/topics/db/models/
 # Abstract base classes
+# Before uploading final version drop the db tables, delete the migrations registers and rerun the commands
+# python manage.py makemigrations
+# python manage.py migrate
 
 class Address(models.Model):
     cep = models.CharField(max_length=8)
@@ -20,7 +23,7 @@ class Person(models.Model):
     cpf = models.CharField(max_length=11)
     phone = models.CharField(max_length=14)
     email = models.CharField(max_length=140)
-    address = models.OneToOneField(Address, on_delete = models.CASCADE)
+    address = models.ForeignKey(Address, on_delete = models.CASCADE)
     
     class Meta:
         abstract = True
@@ -32,7 +35,7 @@ class Company(models.Model):
     trading_name = models.CharField(max_length=140)
     company_name = models.CharField(max_length=140)
     cnpj = models.CharField(max_length=14)
-    address = models.OneToOneField(Address, on_delete = models.CASCADE)
+    address = models.ForeignKey(Address, on_delete = models.CASCADE)
     
     def __str__(self) -> str:
         return(f"Name: {self.company_name}") 

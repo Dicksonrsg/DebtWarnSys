@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpRequest
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
-from .forms import SignUpForm
+from .forms import SignUpForm, AddCompanyForm
 from .models import Company
 
 def home(request: HttpRequest):
@@ -53,3 +53,54 @@ def register_user(request: HttpRequest):
         return render(request, 'register.html', {'form':form})
     
     return render(request, 'register.html', {'form':form})
+
+
+def company_register(request: HttpRequest, primary_key: int):
+    if request.user.is_authenticated:
+        # Look Up Company
+        user_company = Company.objects.get(id=primary_key)
+        return render(request, 'company.html', {'user_company':user_company})
+    else:
+        messages.success(request, "There is no company to be displayed")
+        return redirect('home')
+    
+    
+def delete_company(request: HttpRequest, primary_key: int):
+    if request.user.is_authenticated:
+        to_be_deleted = Company.objects.get(id=primary_key)
+        to_be_deleted.delete()
+        messages.success(request, "Compnay deleted successfully")
+        return redirect('home')
+    else:
+        messages.success(request, "You must be logged in to delete")
+        return redirect('home')   
+    
+    
+def add_company(request: HttpRequest):
+    form = AddCompanyForm(request.POST or None)
+    if request.user.is_authenticated:
+        if request.method == "POST":
+            if form.is_valid():
+                form.save()
+                messages.success(request, "Success, Company added")
+                return redirect('home')
+        
+        return render(request, 'add_company.html', {'form':form})
+    else:
+        messages.success(request, "You must be logged in to add company")
+        return redirect('home')
+    
+    
+def update_company(request: HttpRequest, primary_key: int):
+    if request.user.is_authenticated:
+        current_company = Company.objects.get(id=primary_key)
+        form = AddCompanyForm(request.POST or None, instance=current_company)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Success, Company updated")
+            return redirect('home')
+        
+        return render(request, 'update_company.html', {'form':form})
+    else:
+        messages.success(request, "You must be logged in to update company")
+        return redirect('home')

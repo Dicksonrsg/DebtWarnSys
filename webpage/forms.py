@@ -1,6 +1,7 @@
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django import forms
+from .models import Company, Address
 
 
 class SignUpForm(UserCreationForm):
@@ -29,3 +30,31 @@ class SignUpForm(UserCreationForm):
         self.fields['password2'].widget.attrs['placeholder'] = 'Confirm Password'
         self.fields['password2'].label = ''
         self.fields['password2'].help_text = '<span class="form-text text-muted"><small>Enter the same password as before, for verification.</small></span>'
+        
+
+# Add Address Form
+class AddAddressForm(forms.ModelForm):
+    cep = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"Cep", "class":"form-control"}), label="")
+    street = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"Street", "class":"form-control"}), label="")
+    number = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"Number", "class":"form-control"}), label="")
+    neighbourhood = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"Neighbourhood", "class":"form-control"}), label="")
+    state = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"State", "class":"form-control"}), label="")
+    country = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"Country", "class":"form-control"}), label="")
+    details = forms.CharField(required=False, widget=forms.widgets.TextInput(attrs={"placeholder":"Details", "class":"form-control"}), label="")
+    
+    class Meta:
+        model = Address
+        exclude = ('user',)        
+
+
+# Add Company Form
+class AddCompanyForm(forms.ModelForm):
+    trading_name = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"Trading Name", "class":"form-control"}), label="")
+    company_name = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"Company Name", "class":"form-control"}), label="")
+    cnpj = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"CNPJ", "class":"form-control"}), label="")
+    address = Address.objects.all()
+    
+    class Meta:
+        model = Company
+        fields = ('trading_name', 'company_name', 'cnpj', 'address')
+        

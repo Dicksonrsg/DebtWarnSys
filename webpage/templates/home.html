@@ -14,10 +14,10 @@
           </tr>
         </thead>
         <tbody>
-            {% if companies %}
+        {% if companies %}
             {% for company in companies %}
                 <tr>
-                    <td>{{company.company_name}}</td>
+                    <td><a href="{% url "company" company.id %}">{{company.company_name}}</td>
                     <td>{{company.cnpj}}</td>
                     <td>{{company.address.street}}</td>
                 </tr>
@@ -27,6 +27,7 @@
       </table>
 
     {% else %}
+    <div class="col-md-6 offset-md-3">
         <h1>Log in</h1>
         </br>
         <form method="POST" action="{% url "home" %}">
@@ -42,6 +43,7 @@
             </div>
             <button type="submit" class="btn btn-secondary">Enter</button>  
         </form>
+    </div>
     {% endif %}
 
 {% endblock content %}

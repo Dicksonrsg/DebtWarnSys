@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        {{user_company.company_name}}
+    </div>
+    <div class="card-body">
+      <p class="card-text"><strong>CNPJ: </strong>{{user_company.cnpj}}</p>
+      <p class="card-text"><strong>Address: </strong>{{user_company.address.street}}</p>
+    </div>
+</div>
+<a href="{% url "delete_company" user_company.id %}" class="btn btn-danger">Delete</a>
+<a href="{% url "update_company" user_company.id %}" class="btn btn-danger">Update</a>
+{% endblock content %}
