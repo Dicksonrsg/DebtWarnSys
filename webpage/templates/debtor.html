@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        {{debtor.name}}
+    </div>
+    <div class="card-body">
+      <p class="card-text"><strong>CPF: </strong>{{debtor.cpf}}</p>
+      <p class="card-text"><strong>Address: </strong>{{debtor.address.street}}</p>
+    </div>
+</div>
+<a href="{% url "update_company" debtor.id %}" class="btn btn-success">Update</a>
+<a href="{% url "delete_company" debtor.id %}" class="btn btn-danger">Delete</a>
+
+{% endblock content %}

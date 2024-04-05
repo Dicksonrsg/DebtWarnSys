@@ -9,6 +9,7 @@
       <p class="card-text"><strong>Address: </strong>{{user_company.address.street}}</p>
     </div>
 </div>
+<a href="{% url "update_company" user_company.id %}" class="btn btn-success">Update</a>
 <a href="{% url "delete_company" user_company.id %}" class="btn btn-danger">Delete</a>
-<a href="{% url "update_company" user_company.id %}" class="btn btn-danger">Update</a>
+
 {% endblock content %}

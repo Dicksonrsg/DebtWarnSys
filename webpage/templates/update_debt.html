@@ -2,16 +2,12 @@
 {% block content %}
 
 <div class="col-md-6 offset-md-3">
-    <h1>Update Company</h1>
+    <h1>Update Debt</h1>
     <form method="POST" >
         {% csrf_token %}
         <div lass="form-group">
-            {{company_form.as_p}}
-        </div>
-        <h2>Address</h2>
-        <div lass="form-group">
-            {{address_form.as_p}}
-        </div>        
+            {{debt_form.as_p}}
+        </div>   
         <button type="submit" class="btn btn-success">Update</button>
     </form>
 </div>

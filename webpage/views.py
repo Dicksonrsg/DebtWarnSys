@@ -2,8 +2,8 @@ from django.shortcuts import render, redirect
 from django.http import HttpRequest
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
-from .forms import SignUpForm, AddCompanyForm
-from .models import Company
+from .forms import SignUpForm, AddressForm, CompanyForm, DebtorForm, DebtForm
+from .models import Company, Address, Debtor, Debt
 
 def home(request: HttpRequest):
     
@@ -53,6 +53,27 @@ def register_user(request: HttpRequest):
         return render(request, 'register.html', {'form':form})
     
     return render(request, 'register.html', {'form':form})
+    
+
+# Company    
+def add_company(request: HttpRequest):
+    company_form = CompanyForm(request.POST or None)
+    address_form = AddressForm(request.POST or None)
+    if request.user.is_authenticated:
+        if request.method == "POST":
+            if company_form.is_valid() and address_form.is_valid():
+                address = address_form.save()
+                company_form.instance.address = address
+                company_form.save()
+                messages.success(request, "Success, Company added")
+                return redirect('home')
+            else:
+                messages.error(request, company_form.errors)
+                
+        return render(request, 'add_company.html', {'company_form':company_form, 'address_form': address_form})
+    else:
+        messages.success(request, "You must be logged in to add company")
+        return redirect('home')
 
 
 def company_register(request: HttpRequest, primary_key: int):
@@ -62,45 +83,162 @@ def company_register(request: HttpRequest, primary_key: int):
         return render(request, 'company.html', {'user_company':user_company})
     else:
         messages.success(request, "There is no company to be displayed")
-        return redirect('home')
-    
-    
-def delete_company(request: HttpRequest, primary_key: int):
-    if request.user.is_authenticated:
-        to_be_deleted = Company.objects.get(id=primary_key)
-        to_be_deleted.delete()
-        messages.success(request, "Compnay deleted successfully")
-        return redirect('home')
-    else:
-        messages.success(request, "You must be logged in to delete")
-        return redirect('home')   
-    
-    
-def add_company(request: HttpRequest):
-    form = AddCompanyForm(request.POST or None)
-    if request.user.is_authenticated:
-        if request.method == "POST":
-            if form.is_valid():
-                form.save()
-                messages.success(request, "Success, Company added")
-                return redirect('home')
-        
-        return render(request, 'add_company.html', {'form':form})
-    else:
-        messages.success(request, "You must be logged in to add company")
-        return redirect('home')
-    
+        return redirect('home') 
+
     
 def update_company(request: HttpRequest, primary_key: int):
     if request.user.is_authenticated:
         current_company = Company.objects.get(id=primary_key)
-        form = AddCompanyForm(request.POST or None, instance=current_company)
-        if form.is_valid():
-            form.save()
+        current_address = Address.objects.get(id=current_company.address.id)
+        company_form = CompanyForm(request.POST or None, instance=current_company)
+        address_form = AddressForm(request.POST or None, instance=current_address)
+        if company_form.is_valid() and address_form.is_valid():
+            address = address_form.save()
+            company_form.instance.address = address
+            company_form.save()
             messages.success(request, "Success, Company updated")
             return redirect('home')
+        else:
+            messages.error(request, company_form.errors)        
         
-        return render(request, 'update_company.html', {'form':form})
+        return render(request, 'update_company.html', {'company_form':company_form, 'address_form': address_form})
     else:
         messages.success(request, "You must be logged in to update company")
         return redirect('home')
+
+
+def delete_company(request: HttpRequest, primary_key: int):
+    if request.user.is_authenticated:
+        to_be_deleted = Company.objects.get(id=primary_key)
+        to_be_deleted.delete()
+        messages.success(request, "Company deleted successfully")
+        return redirect('home')
+    else:
+        messages.success(request, "You must be logged in to delete")
+        return redirect('home')  
+ 
+
+# Debtor
+def add_debtor(request: HttpRequest):
+    debtor_form = DebtorForm(request.POST or None)
+    address_form = AddressForm(request.POST or None)
+    if request.user.is_authenticated:
+        if request.method == "POST":
+            if debtor_form.is_valid() and address_form.is_valid():
+                address = address_form.save()
+                debtor_form.instance.address = address
+                debtor_form.save()
+                messages.success(request, "Success, Debtor added")
+                return redirect('home')
+            else:
+                messages.error(request, debtor_form.errors)
+                
+        return render(request, 'add_debtor.html', {'debtor_form':debtor_form, 'address_form': address_form})
+    else:
+        messages.success(request, "You must be logged in to add debtor")
+        return redirect('home')
+    
+
+def debtor_register(request: HttpRequest, primary_key: int):
+    if request.user.is_authenticated:
+        # Look Up Debtor
+        debtor = Debtor.objects.get(id=primary_key)
+        return render(request, 'debtor.html', {'debtor':debtor})
+    else:
+        messages.success(request, "There is no debtor to be displayed")
+        return redirect('home')
+    
+
+def update_debtor(request: HttpRequest, primary_key: int):
+    if request.user.is_authenticated:
+        current_debtor = Debtor.objects.get(id=primary_key)
+        current_address = Address.objects.get(id=current_debtor.address.id)
+        debtor_form = DebtorForm(request.POST or None, instance=current_debtor)
+        address_form = AddressForm(request.POST or None, instance=current_address)
+        if debtor_form.is_valid() and address_form.is_valid():
+            address = address_form.save()
+            debtor_form.instance.address = address
+            debtor_form.save()
+            messages.success(request, "Success, Debtor updated")
+            return redirect('home')
+        else:
+            messages.error(request, debtor_form.errors)        
+        
+        return render(request, 'update_debtor.html', {'debtor_form':debtor_form, 'address_form': address_form})
+    else:
+        messages.success(request, "You must be logged in to update debtor")
+        return redirect('home')
+    
+    
+def delete_debtor(request: HttpRequest, primary_key: int):
+    if request.user.is_authenticated:
+        to_be_deleted = Debtor.objects.get(id=primary_key)
+        to_be_deleted.delete()
+        messages.success(request, "Debtor deleted successfully")
+        return redirect('home')
+    else:
+        messages.success(request, "You must be logged in to delete")
+        return redirect('home') 
+    
+    
+# Debt
+def add_debt(request: HttpRequest):
+    debt_form = DebtForm(request.POST or None)
+    if request.user.is_authenticated:
+        if request.method == "POST":
+            company_cnpj = request.POST.get('company_cnpj')
+            debtor_cpf = request.POST.get('debtor_cpf')
+            company = Company.objects.get(cnpj=company_cnpj)
+            debtor = Debtor.objects.get(cpf=debtor_cpf)
+            if debt_form.is_valid():
+                debt_form.instance.creditor = company
+                debt_form.instance.debtor = debtor
+                debt_form.save()
+                messages.success(request, "Success, Debt added")
+                return redirect('home')
+            else:
+                messages.error(request, debt_form.errors)
+                
+        return render(request, 'add_debt.html', {'debt_form':debt_form})
+    else:
+        messages.success(request, "You must be logged in to add debt")
+        return redirect('home')
+    
+
+def debt_register(request: HttpRequest, primary_key: int):
+    if request.user.is_authenticated:
+        # Look Up Debt
+        debt = Debt.objects.get(id=primary_key)
+        return render(request, 'debt.html', {'debt':debt})
+    else:
+        messages.success(request, "There is no debt to be displayed")
+        return redirect('home')
+    
+
+def update_debt(request: HttpRequest, primary_key: int):
+    if request.user.is_authenticated:
+        current_debt = Debt.objects.get(id=primary_key)
+        debt_form = DebtForm(request.POST or None, instance=current_debt)
+        if debt_form.is_valid():
+            debt_form.save()
+            messages.success(request, "Success, Debt updated")
+            return redirect('home')
+        else:
+            messages.error(request, debt_form.errors)        
+        
+        return render(request, 'update_debtor.html', {'debt_form':debt_form})
+    else:
+        messages.success(request, "You must be logged in to update debt")
+        return redirect('home')
+    
+    
+def delete_debt(request: HttpRequest, primary_key: int):
+    if request.user.is_authenticated:
+        to_be_deleted = Debtor.objects.get(id=primary_key)
+        to_be_deleted.delete()
+        messages.success(request, "Debt deleted successfully")
+        return redirect('home')
+    else:
+        messages.success(request, "You must be logged in to delete")
+        return redirect('home') 
+    

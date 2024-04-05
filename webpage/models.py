@@ -20,7 +20,7 @@ class Person(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=140)
-    cpf = models.CharField(max_length=11)
+    cpf = models.CharField(max_length=11, unique=True)
     phone = models.CharField(max_length=14)
     email = models.CharField(max_length=140)
     address = models.ForeignKey(Address, on_delete = models.CASCADE)
@@ -34,7 +34,8 @@ class Company(models.Model):
     updated_at = models.DateTimeField(auto_now_add=True)
     trading_name = models.CharField(max_length=140)
     company_name = models.CharField(max_length=140)
-    cnpj = models.CharField(max_length=14)
+    cnpj = models.CharField(max_length=14, unique=True)
+    phone = models.CharField(max_length=14, default='')
     address = models.ForeignKey(Address, on_delete = models.CASCADE)
     
     def __str__(self) -> str:
@@ -42,7 +43,16 @@ class Company(models.Model):
 
     
 class Employee(Person):
-    role = models.CharField(max_length=70)
+    OWNER = 'Owner'
+    ADMIN = 'Admin'
+    WORKER = 'Worker'
+    ROLE = [
+        (OWNER, 'Owner - All power'),
+        (ADMIN, 'Admin - Administrative'),
+        (WORKER, 'Worker - Operation level'),
+    ]
+    
+    role = models.CharField(max_length=70, choices=ROLE, default=WORKER)
     company = models.ManyToManyField(Company)
     
     def __str__(self) -> str:
@@ -59,10 +69,12 @@ class Debtor(Person):
 class Debt(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
-    contract = models.CharField(max_length=70)
+    contract = models.CharField(max_length=70, unique=True)
     due_date = models.DateField()
     status = models.CharField(max_length=70)
     value = models.FloatField(default=0.00)
+    times_contacted = models.IntegerField(default=0)
+    last_contact = models.DateTimeField(default='1988-30-02 00:00')
     creditor = models.ForeignKey(Company, on_delete = models.CASCADE)
     debtor = models.ForeignKey(Debtor, on_delete = models.CASCADE)
     
