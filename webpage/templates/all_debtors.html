@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    {% if user.is_authenticated %}
+    <h1>Debtors</h1>
+
+    <table class="table table-hover">
+        <thead>
+          <tr>
+            <th scope="col">Name:</th>
+            <th scope="col">CPF</th>
+            <th scope="col">Address</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% if debtors %}
+            {% for debtor in debtors %}
+                <tr>
+                    <td><a href="{% url "debtor" debtor.id %}">{{debtor.name}}</td>
+                    <td>{{debtor.cpf}}</td>
+                    <td>{{debtor.address.street}}</td>
+                </tr>
+            {% endfor %}
+        {% endif %}
+        </tbody>
+      </table>
+
+    {% endif %}
+
+{% endblock content %}

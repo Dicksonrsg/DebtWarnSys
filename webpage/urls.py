@@ -14,6 +14,7 @@ urlpatterns = [
     path('add_debtor/', views.add_debtor, name='add_debtor'),
     path('debtor/<int:primary_key>', views.debtor_register, name='debtor'),
     path('update_debtor/<int:primary_key>', views.update_debtor, name='update_debtor'),
-    path('add_debt', views.add_debt, name='add_debt'),    
+    path('add_debt', views.add_debt, name='add_debt'),
+    path('all_debtors', views.all_debtors, name='all_debtors'),        
 
 ]

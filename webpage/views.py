@@ -147,6 +147,15 @@ def debtor_register(request: HttpRequest, primary_key: int):
     else:
         messages.success(request, "There is no debtor to be displayed")
         return redirect('home')
+
+
+def all_debtors(request: HttpRequest):
+    if request.user.is_authenticated:
+        debtors = Debtor.objects.all()
+        return render(request, 'all_debtors.html', {'debtors':debtors})
+    else:
+        messages.error(request, "There is no debtor to be displayed")
+        return redirect('home')
     
 
 def update_debtor(request: HttpRequest, primary_key: int):
@@ -186,18 +195,25 @@ def add_debt(request: HttpRequest):
     debt_form = DebtForm(request.POST or None)
     if request.user.is_authenticated:
         if request.method == "POST":
-            company_cnpj = request.POST.get('company_cnpj')
-            debtor_cpf = request.POST.get('debtor_cpf')
-            company = Company.objects.get(cnpj=company_cnpj)
-            debtor = Debtor.objects.get(cpf=debtor_cpf)
-            if debt_form.is_valid():
-                debt_form.instance.creditor = company
-                debt_form.instance.debtor = debtor
-                debt_form.save()
-                messages.success(request, "Success, Debt added")
-                return redirect('home')
-            else:
-                messages.error(request, debt_form.errors)
+            company_cnpj = request.POST.get('c_cnpj')
+            debtor_cpf = request.POST.get('d_cpf')
+            try:
+                company = Company.objects.get(cnpj=company_cnpj)
+                debtor = Debtor.objects.get(cpf=debtor_cpf)
+                if debt_form.is_valid():
+                    debt_form.instance.creditor = company
+                    debt_form.instance.debtor = debtor
+                    debt_form.save()
+                    messages.success(request, "Success, Debt added")
+                    return redirect('home')
+                else:
+                    messages.error(request, debt_form.errors)
+            except Company.DoesNotExist:
+                messages.error(request, "Company with CNPJ %s not found" % company_cnpj) 
+            except Debtor.DoesNotExist:
+                messages.error(request, "Debtor with CPF %s not found" % debtor_cpf)
+            except Exception as e:
+                messages.error(request, f"Unknown Exception ocurred: {str(e)}")
                 
         return render(request, 'add_debt.html', {'debt_form':debt_form})
     else:

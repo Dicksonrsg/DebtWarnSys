@@ -74,7 +74,7 @@ class Debt(models.Model):
     status = models.CharField(max_length=70)
     value = models.FloatField(default=0.00)
     times_contacted = models.IntegerField(default=0)
-    last_contact = models.DateTimeField(default='1988-30-02 00:00')
+    last_contact = models.DateTimeField(default='2012-09-04 06:00:00.000000')
     creditor = models.ForeignKey(Company, on_delete = models.CASCADE)
     debtor = models.ForeignKey(Debtor, on_delete = models.CASCADE)
     
