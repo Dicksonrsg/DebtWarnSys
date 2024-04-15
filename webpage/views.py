@@ -195,12 +195,10 @@ def add_debt(request: HttpRequest):
     debt_form = DebtForm(request.POST or None)
     if request.user.is_authenticated:
         if request.method == "POST":
-            company_cnpj = request.POST.get('c_cnpj')
-            debtor_cpf = request.POST.get('d_cpf')
             try:
-                company = Company.objects.get(cnpj=company_cnpj)
-                debtor = Debtor.objects.get(cpf=debtor_cpf)
                 if debt_form.is_valid():
+                    company = Company.objects.get(cnpj=debt_form.cnpj)
+                    debtor = Debtor.objects.get(cpf=debt_form.cpf)
                     debt_form.instance.creditor = company
                     debt_form.instance.debtor = debtor
                     debt_form.save()
@@ -209,9 +207,9 @@ def add_debt(request: HttpRequest):
                 else:
                     messages.error(request, debt_form.errors)
             except Company.DoesNotExist:
-                messages.error(request, "Company with CNPJ %s not found" % company_cnpj) 
+                messages.error(request, "Company with CNPJ %s not found" % debt_form.cnpj) 
             except Debtor.DoesNotExist:
-                messages.error(request, "Debtor with CPF %s not found" % debtor_cpf)
+                messages.error(request, "Debtor with CPF %s not found" % debt_form.cpf)
             except Exception as e:
                 messages.error(request, f"Unknown Exception ocurred: {str(e)}")
                 
@@ -230,6 +228,17 @@ def debt_register(request: HttpRequest, primary_key: int):
         messages.success(request, "There is no debt to be displayed")
         return redirect('home')
     
+    
+def all_debts_for_cnpj(request: HttpRequest):
+    if request.user.is_authenticated:
+        # Look Up Debts
+        # Get Debts by company later on
+        debts = Debt.objects.all()
+        return render(request, 'debts_report.html', {'debts':debts})
+    else:
+        messages.success(request, "There is no debt to be displayed")
+        return redirect('debts_report')
+    
 
 def update_debt(request: HttpRequest, primary_key: int):
     if request.user.is_authenticated:
@@ -242,7 +251,7 @@ def update_debt(request: HttpRequest, primary_key: int):
         else:
             messages.error(request, debt_form.errors)        
         
-        return render(request, 'update_debtor.html', {'debt_form':debt_form})
+        return render(request, 'update_debt.html', {'debt_form':debt_form})
     else:
         messages.success(request, "You must be logged in to update debt")
         return redirect('home')

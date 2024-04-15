@@ -33,7 +33,7 @@ class SignUpForm(UserCreationForm):
         
 
 class AddressForm(forms.ModelForm):
-    cep = forms.CharField(max_length=8, required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"Cep", "class":"form-control"}), label="")
+    cep = forms.CharField(max_length=8, required=True, widget=forms.widgets.TextInput(attrs={'data-mask':"00000-000", "class":"form-control"}), label="Cep")
     street = forms.CharField(max_length=140, required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"Street", "class":"form-control"}), label="")
     number = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"Number", "class":"form-control"}), label="")
     neighbourhood = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"Neighbourhood", "class":"form-control"}), label="")
@@ -49,8 +49,8 @@ class AddressForm(forms.ModelForm):
 class CompanyForm(forms.ModelForm):
     trading_name = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"Trading Name", "class":"form-control"}), label="")
     company_name = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"Company Name", "class":"form-control"}), label="")
-    cnpj = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"CNPJ", "class":"form-control"}), label="")
-    phone = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"Phone", "class":"form-control"}), label="Phone")
+    cnpj = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"CNPJ", 'data-mask':"00.000.000/0000-00", "class":"form-control"}), label="")
+    phone = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"Phone", 'data-mask':"(00) 00000-0000", "class":"form-control"}), label="Phone")
 
     def __init__(self, *args, **kwargs):
         super(CompanyForm, self).__init__(*args, **kwargs)
@@ -62,8 +62,8 @@ class CompanyForm(forms.ModelForm):
 
 class DebtorForm(forms.ModelForm):
     name = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"Name", "class":"form-control"}), label="Name")
-    cpf = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"CPF", "class":"form-control"}), label="CPF")
-    phone = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"Phone", "class":"form-control"}), label="Phone")
+    cpf = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"CPF", 'data-mask':"000.000.000-00", "class":"form-control"}), label="CPF")
+    phone = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"Phone", 'data-mask':"(00) 00000-0000", "class":"form-control"}), label="Phone")
     email = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"Email", "class":"form-control"}), label="Email")
     active = forms.BooleanField(required=True, widget=forms.widgets.NullBooleanSelect(attrs={"placeholder":"Active", "class":"form-control"}), label="Active")
     
@@ -74,19 +74,20 @@ class DebtorForm(forms.ModelForm):
         
 class DebtForm(forms.ModelForm):
     contract = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"Contract", "class":"form-control"}), label="Contract")
-    due_date = forms.DateField(required=True, widget=forms.widgets.DateInput(attrs={"class":"form-control"}), label="Due Date")
+    due_date = forms.DateField(required=True, widget=forms.widgets.DateInput(format="%d-%m-%Y", attrs={"type": "date", "class":"form-control"}), label="Due Date", input_formats=["%d-%m-%Y"])
     status = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"Status", "class":"form-control"}), label="Status")
     value = forms.FloatField(required=True, widget=forms.widgets.NumberInput(attrs={ "class":"form-control"}), label="Value")
-
+    cpf = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"class":"form-control", 'data-mask':"000.000.000-00"}), label="CPF")
+    cnpj = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"class":"form-control", 'data-mask':"00.000.000/0000-00"}), label="CNPJ")
     class Meta:
         model = Debt
-        fields = ('contract', 'due_date', 'status', 'value')
+        fields = ('contract', 'due_date', 'status', 'value', 'cpf', 'cnpj')
 
 
 class Employee(forms.ModelForm):
     name = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"Name", "class":"form-control"}), label="Name")
-    cpf = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"CPF", "class":"form-control"}), label="CPF")
-    phone = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"Phone", "class":"form-control"}), label="Phone")
+    cpf = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"CPF", "class":"form-control", 'data-mask':"000.000.000-00"}), label="CPF")
+    phone = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"Phone", "class":"form-control", 'data-mask':"(00) 00000-0000"}), label="Phone")
     email = forms.EmailField(required=True, widget=forms.widgets.EmailInput(attrs={"placeholder":"Email", "class":"form-control"}), label="Email")
     role = forms.ChoiceField(choices=Employee.ROLE, label='Role')
     

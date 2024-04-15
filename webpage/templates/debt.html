@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        {{debt.contract}}
+    </div>
+    <div class="card-body">
+      <p class="card-text"><strong>Name: </strong>{{debt.debtor.name}}</p>
+      <p class="card-text"><strong>Due Date: </strong>{{debt.due_date}}</p>
+      <p class="card-text"><strong>Value: </strong>{{debt.value}}</p>
+      <p class="card-text"><strong>Status: </strong>{{debt.status}}</p>
+      <p class="card-text"><strong>Times contacted: </strong>{{debt.times_contacted}}</p>
+      <p class="card-text"><strong>Last Contact: </strong>{{debt.last_contact}}</p>
+    </div>
+</div>
+<a href="{% url "update_debt" debt.id %}" class="btn btn-success">Update</a>
+<a href="{% url "delete_debt" debt.id %}" class="btn btn-danger">Delete</a>
+
+{% endblock content %}
