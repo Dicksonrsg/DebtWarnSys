@@ -17,6 +17,7 @@ urlpatterns = [
     path('debtor/<int:primary_key>', views.debtor_register, name='debtor'),
     path('update_debtor/<int:primary_key>', views.update_debtor, name='update_debtor'),
     path('all_debtors', views.all_debtors, name='all_debtors'),
+    path('my_debts', views.all_debts_for_cpf, name='my_debts'),
     # Debt
     path('add_debt', views.add_debt, name='add_debt'),
     path('debt/<int:primary_key>', views.debt_register, name='debt'),

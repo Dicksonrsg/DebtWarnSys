@@ -282,11 +282,10 @@ def debt_register(request: HttpRequest, primary_key: int):
         messages.success(request, "You must be logged in to view Debt")
         return redirect('home')
     
-    
+# Look Up Debts
+# TODO: Get Debts by company   
 def all_debts_for_cnpj(request: HttpRequest):
     if request.user.is_authenticated:
-        # Look Up Debts
-        # TODO: Get Debts by company
         try:
             debts = Debt.objects.all()
             return render(request, 'debts_report.html', {'debts':debts})
@@ -299,6 +298,19 @@ def all_debts_for_cnpj(request: HttpRequest):
         messages.success(request, "You must be logged in to view Debts")
         return redirect('debts_report')
     
+def all_debts_for_cpf(request: HttpRequest, debtor_cpf: str):
+    if request.user.is_authenticated:
+        try:
+            debts = Debt.objects.get(cpf=debtor_cpf)
+            return render(request, 'my_debts.html', {'debts': debts})
+        except Debt.DoesNotExist:
+            messages.error(request, "Debts not found")
+        except Exception as e:
+            messages.error(request, f"An Exception ocurred: {str(e)}")
+            return render(request, 'error.html')
+    else:
+        messages.success(request, "You must be logged in to view Debts")
+        return redirect('my_Debts')
 
 def update_debt(request: HttpRequest, primary_key: int):
     if request.user.is_authenticated:
