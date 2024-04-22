@@ -2,8 +2,8 @@ from django.shortcuts import render, redirect
 from django.http import HttpRequest
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
-from .forms import SignUpForm, AddressForm, CompanyForm, DebtorForm, DebtForm
-from .models import Company, Address, Debtor, Debt
+from .forms import SignUpForm, AddressForm, CompanyForm, DebtorForm, DebtForm, EmployeeForm
+from .models import Company, Address, Debtor, Debt, Employee
 
 def home(request: HttpRequest):
     
@@ -61,14 +61,18 @@ def add_company(request: HttpRequest):
     address_form = AddressForm(request.POST or None)
     if request.user.is_authenticated:
         if request.method == "POST":
-            if company_form.is_valid() and address_form.is_valid():
-                address = address_form.save()
-                company_form.instance.address = address
-                company_form.save()
-                messages.success(request, "Success, Company added")
-                return redirect('home')
-            else:
-                messages.error(request, company_form.errors)
+            try:
+                if company_form.is_valid() and address_form.is_valid():
+                    address = address_form.save()
+                    company_form.instance.address = address
+                    company_form.save()
+                    messages.success(request, "Success, Company added")
+                    return redirect('home')
+                else:
+                    messages.error(request, company_form.errors)
+            except Exception as e:
+                messages.error(request, f"Unknown Exception ocurred: {str(e)}")
+                return render(request, 'error.html')                
                 
         return render(request, 'add_company.html', {'company_form':company_form, 'address_form': address_form})
     else:
@@ -78,9 +82,15 @@ def add_company(request: HttpRequest):
 
 def company_register(request: HttpRequest, primary_key: int):
     if request.user.is_authenticated:
+        try:
         # Look Up Company
-        user_company = Company.objects.get(id=primary_key)
-        return render(request, 'company.html', {'user_company':user_company})
+            user_company = Company.objects.get(id=primary_key)
+            return render(request, 'company.html', {'user_company':user_company})
+        except Company.DoesNotExist:
+            messages.error(request, "Companies not found")
+        except Exception as e:
+            messages.error(request, f"Unknown Exception ocurred: {str(e)}")
+            return render(request, 'error.html')
     else:
         messages.success(request, "There is no company to be displayed")
         return redirect('home') 
@@ -233,8 +243,13 @@ def all_debts_for_cnpj(request: HttpRequest):
     if request.user.is_authenticated:
         # Look Up Debts
         # Get Debts by company later on
-        debts = Debt.objects.all()
-        return render(request, 'debts_report.html', {'debts':debts})
+        try:
+            debts = Debt.objects.all()
+            return render(request, 'debts_report.html', {'debts':debts})
+        except Debt.DoesNotExist:
+            messages.error(request, "Debts not found")
+        except Exception as e:
+            messages.error(request, f"Unknown Exception ocurred: {str(e)}")
     else:
         messages.success(request, "There is no debt to be displayed")
         return redirect('debts_report')
@@ -259,11 +274,107 @@ def update_debt(request: HttpRequest, primary_key: int):
     
 def delete_debt(request: HttpRequest, primary_key: int):
     if request.user.is_authenticated:
-        to_be_deleted = Debtor.objects.get(id=primary_key)
+        to_be_deleted = Debt.objects.get(id=primary_key)
         to_be_deleted.delete()
         messages.success(request, "Debt deleted successfully")
         return redirect('home')
     else:
         messages.success(request, "You must be logged in to delete")
+        return redirect('home') 
+
+
+# Employee
+def add_employee(request: HttpRequest):
+    employee_form = EmployeeForm(request.POST or None)
+    address_form = AddressForm(request.POST or None)
+    if request.user.is_authenticated:
+        if request.method == "POST":
+            try:
+                if employee_form.is_valid() and address_form.is_valid():
+                    address = address_form.save()
+                    employee_form.instance.address = address
+                    company = Company.objects.get(cnpj=employee_form.cleaned_data['cnpj'])
+                    employee_form.instance.creditor = company
+                    employee_form.save()
+                    messages.success(request, "Success, Employee added")
+                    return redirect('home')
+                else:
+                    messages.error(request, employee_form.errors or address_form.errors)
+            except Company.DoesNotExist:
+                messages.error(request, "Company with CNPJ %s not found" % employee_form.cleaned_data['cnpj'])
+            except Exception as e:
+                messages.error(request, f"Unknown Exception ocurred: {str(e)}")
+                
+        return render(request, 'add_employee.html', {'employee_form':employee_form, 'address_form': address_form})
+    else:
+        messages.success(request, "You must be logged in to add employee")
+        return redirect('home')
+    
+
+def employee_register(request: HttpRequest, primary_key: int):
+    if request.user.is_authenticated:
+        # Look Up Employee
+        try:
+            employee = Employee.objects.get(id=primary_key)
+            return render(request, 'employee.html', {'employee':employee})
+        except Exception as e:
+            messages.error(request, f"Unknown Exception ocurred: {str(e)}")
+            return render(request, 'error.html')
+    else:
+        messages.error(request, "You must be logged in to access this register")
+        return redirect('home')
+    
+    
+def all_employees(request: HttpRequest):
+    if request.user.is_authenticated:
+        # Look Up Employees
+        # Later on - Bring only employees from a specific CNPJ
+        try:
+            employees = Employee.objects.all()
+            return render(request, 'all_employees.html', {'employees': employees})
+        except Employee.DoesNotExist:
+            messages.error(request, "Employees not found")
+        except Exception as e:
+            messages.error(request, f"Unknown Exception ocurred: {str(e)}")
+            return render(request, 'error.html')
+    else:
+        messages.error(request, "You must be logged in to access employees section")
+        return redirect('home')
+    
+
+def update_employee(request: HttpRequest, primary_key: int):
+    if request.user.is_authenticated:
+        try:
+            current_employee = Employee.objects.get(id=primary_key)
+            employee_form = EmployeeForm(request.POST or None, instance=current_employee)
+            if employee_form.is_valid():
+                employee_form.save()
+                messages.success(request, "Success, Employee updated")
+                return redirect('home')
+            else:
+                messages.error(request, employee_form.errors)        
+            
+            return render(request, 'update_employee.html', {'employee_form':employee_form})
+        
+        except Employee.DoesNotExist:
+            messages.error(request, "Employee with CPF %s not found" % employee_form.cpf)
+        except Exception as e:
+            messages.error(request, f"Unknown Exception ocurred: {str(e)}")
+    else:
+        messages.error(request, "You must be logged in to update employee")
+        return redirect('home')
+    
+    
+def delete_employee(request: HttpRequest, primary_key: int):
+    if request.user.is_authenticated:
+        try:
+            to_be_deleted = Employee.objects.get(id=primary_key)
+            to_be_deleted.delete()
+            messages.success(request, "Employee deleted successfully")
+            return redirect('home')
+        except Exception as e:
+            messages.error(request, f"Unknown Exception ocurred: {str(e)}")
+    else:
+        messages.error(request, "You must be logged in to delete")
         return redirect('home') 
     

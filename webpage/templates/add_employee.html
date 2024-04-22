@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="col-md-6 offset-md-3">
+  <h1>Add Employee</h1>
+  <form method="POST" >
+    {% csrf_token %}
+    <div class="form-group">
+      {{ employee_form.as_p }}
+    </div>
+    <h2>New Address Details</h2>
+    <div class="form-group">
+      {{ address_form.as_p }}  
+    </div>
+    <button type="submit" class="btn btn-primary">Add</button>
+    <button type="reset" class="btn btn-secondary">Cancel</button>
+  </form>
+</div>
+
+{% endblock content %}

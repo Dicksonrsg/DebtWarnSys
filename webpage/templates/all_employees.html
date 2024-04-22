@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    {% if user.is_authenticated %}
+    <h1>Employees</h1>
+
+    <table class="table table-hover">
+        <thead>
+          <tr>
+            <th scope="col">Name</th>
+            <th scope="col">CPF</th>
+            <th scope="col">Role</th>
+            <th scope="col">Address</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% if employees %}
+            {% for employee in employees %}
+                <tr>
+                    <td><a href="{% url "employee" employee.id %}">{{employee.name}}</td>
+                    <td>{{employee.cpf}}</td>
+                    <td>{{employee.role}}</td>
+                    <td>{{employee.address.street}}</td>
+                </tr>
+            {% endfor %}
+        {% endif %}
+        </tbody>
+      </table>
+
+    {% endif %}
+
+{% endblock content %}
