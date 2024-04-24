@@ -3,7 +3,7 @@
 {% block content %}
 
     {% if user.is_authenticated %}
-    <h1>Employees</h1>
+    <h1>Company Users</h1>
 
     <table class="table table-hover">
         <thead>
@@ -15,13 +15,13 @@
           </tr>
         </thead>
         <tbody>
-        {% if employees %}
-            {% for employee in employees %}
+        {% if company_users %}
+            {% for company_user in company_users %}
                 <tr>
-                    <td><a href="{% url "employee" employee.id %}">{{employee.name}}</td>
-                    <td>{{employee.cpf}}</td>
-                    <td>{{employee.role}}</td>
-                    <td>{{employee.address.street}}</td>
+                    <td><a href="{% url "company_user" company_user.id %}">{{company_user.name}}</td>
+                    <td>{{company_user.cpf}}</td>
+                    <td>{{company_user.role}}</td>
+                    <td>{{company_user.address.street}}</td>
                 </tr>
             {% endfor %}
         {% endif %}

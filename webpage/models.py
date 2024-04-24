@@ -1,28 +1,27 @@
 from django.db import models
+from django.contrib.auth.admin import User
+from django_countries.fields import CountryField
+from localflavor.br.models import BRStateField
 
-# https://docs.djangoproject.com/en/5.0/topics/db/models/
-# Abstract base classes
-# Before uploading final version drop the db tables, delete the migrations registers and rerun the commands
-# python manage.py makemigrations
-# python manage.py migrate
+
 
 class Address(models.Model):
-    cep = models.CharField(max_length=8)
-    street = models.CharField(max_length=140)
-    number = models.CharField(max_length=7)
-    neighbourhood = models.CharField(max_length=60)
-    state = models.CharField(max_length=140)
-    country = models.CharField(max_length=14)
-    details = models.CharField(max_length=140, blank=True, default='')
+    cep = models.CharField(max_length=8, blank=False, null=False)
+    street = models.CharField(max_length=140, blank=False, null=False)
+    number = models.CharField(max_length=9, blank=False, null=False)
+    neighbourhood = models.CharField(max_length=60, blank=False, null=False)
+    state = BRStateField(blank=False, null=False)
+    country = CountryField(blank_label="(select country)")
+    details = models.CharField(max_length=140, blank=True, null=True)
     
 
 class Person(models.Model):
+    user_auth = models.OneToOneField(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=140)
-    cpf = models.CharField(max_length=11, unique=True)
+    cpf = models.CharField(max_length=11, unique=True, blank=False, null=False)
     phone = models.CharField(max_length=14)
-    email = models.CharField(max_length=140)
     address = models.ForeignKey(Address, on_delete = models.CASCADE)
     
     class Meta:
@@ -32,8 +31,8 @@ class Person(models.Model):
 class Company(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
-    trading_name = models.CharField(max_length=140)
-    company_name = models.CharField(max_length=140)
+    trading_name = models.CharField(max_length=140, blank=False, null=False)
+    company_name = models.CharField(max_length=140, blank=False, null=False)
     cnpj = models.CharField(max_length=14, unique=True)
     phone = models.CharField(max_length=14, default='')
     address = models.ForeignKey(Address, on_delete = models.CASCADE)
@@ -42,7 +41,7 @@ class Company(models.Model):
         return(f"Name: {self.company_name}") 
 
     
-class Employee(Person):
+class CompanyUser(Person):
     OWNER = 'Owner'
     ADMIN = 'Admin'
     WORKER = 'Worker'
@@ -52,7 +51,7 @@ class Employee(Person):
         (WORKER, 'Worker - Operation level'),
     ]
     
-    role = models.CharField(max_length=70, choices=ROLE, default=WORKER)
+    role = models.CharField(max_length=9, choices=ROLE, default=WORKER)
     company = models.ManyToManyField(Company)
     
     def __str__(self) -> str:
@@ -67,14 +66,24 @@ class Debtor(Person):
     
     
 class Debt(models.Model):
+    PAID = 'Paid'
+    PAST_DUE = 'Past Due'
+    CONTESTED = 'Contested'
+    STATUS = [
+        (PAID, 'Paid - Debt was paid'),
+        (PAST_DUE,'Past due - Debt has not been paid'),
+        (CONTESTED,'Contested - Debt has been contested'),
+    ]
+    
     created_at = models.DateTimeField(auto_now_add=True)
+    created_by = models.EmailField(blank=False, null=False)
     updated_at = models.DateTimeField(auto_now_add=True)
-    contract = models.CharField(max_length=70, unique=True)
-    due_date = models.DateField()
-    status = models.CharField(max_length=70)
-    value = models.FloatField(default=0.00)
-    times_contacted = models.IntegerField(default=0)
-    last_contact = models.DateTimeField(default='2012-09-04 06:00:00.000000')
+    contract = models.CharField(max_length=70, unique=True, blank=False, null=False)
+    due_date = models.DateField(blank=False, null=False)
+    status = models.CharField(max_length=70, choices=STATUS, default=PAST_DUE)
+    value = models.FloatField(blank=False, null=False)
+    times_contacted = models.IntegerField(blank=True, null=True)
+    last_contact = models.DateTimeField(blank=True, null=True)
     creditor = models.ForeignKey(Company, on_delete = models.CASCADE)
     debtor = models.ForeignKey(Debtor, on_delete = models.CASCADE)
     

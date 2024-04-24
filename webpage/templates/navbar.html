@@ -17,16 +17,19 @@
             <a class="nav-link" href="{% url "add_debt" %}">Add Debt</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{% url "add_employee" %}">Add Employee</a>
+            <a class="nav-link" href="{% url "add_company_user" %}">Add Company User</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="{% url "all_debtors" %}">Debtors</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{% url "all_employees" %}">Employees</a>
+            <a class="nav-link" href="{% url "all_company_users" %}">Company Users</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="{% url "debts_report" %}">Debts Report</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Logged in as <strong>{{user.username}}</strong></a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="{% url "logout" %}">Log out</a>

@@ -4,7 +4,7 @@ from . import views
 
 urlpatterns = [
     path('', views.home, name='home'),
-    # path('login/', views.login_user, name='login'),
+    path('login/', views.login_user, name='login'),
     path('logout/', views.logout_user, name='logout'),
     path('register/', views.register_user, name='register'),
     # Company
@@ -24,10 +24,10 @@ urlpatterns = [
     path('update_debt/<int:primary_key>', views.update_debt, name='update_debt'),
     path('debts_report', views.all_debts_for_cnpj, name='debts_report'),
     path('delete_debt/<int:primary_key>', views.delete_debt, name='delete_debt'),
-    # Employee
-    path('add_employee', views.add_employee, name='add_employee'),
-    path('employee/<int:primary_key>', views.employee_register, name='employee'),
-    path('update_employee/<int:primary_key>', views.update_employee, name='update_employee'),
-    path('all_employees', views.all_employees, name='all_employees'),
+    # CompanyUser
+    path('add_company_user', views.add_company_user, name='add_company_user'),
+    path('company_user/<int:primary_key>', views.company_user_register, name='company_user'),
+    path('update_company_user/<int:primary_key>', views.update_company_user, name='update_company_user'),
+    path('all_company_users', views.all_company_users, name='all_company_users'),
     
 ]

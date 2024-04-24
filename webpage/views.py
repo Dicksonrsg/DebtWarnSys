@@ -2,14 +2,23 @@ from django.shortcuts import render, redirect
 from django.http import HttpRequest
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
-from .forms import SignUpForm, AddressForm, CompanyForm, DebtorForm, DebtForm, EmployeeForm
-from .models import Company, Address, Debtor, Debt, Employee
+from django.contrib.auth.decorators import login_required
+from .forms import SignUpForm, AddressForm, CompanyForm, DebtorForm, DebtForm, CompanyUserForm
+from .models import Company, Address, Debtor, Debt, CompanyUser
 
+
+
+@login_required(login_url="login")
 def home(request: HttpRequest):
-    
-    companies = Company.objects.all()
-    
+    # Get only companies from a specific user
+        companies = Company.objects.all()
+        if companies:
+            return render(request, 'home.html', {'companies':companies})
+        else:
+            return render(request, 'home.html', {'companies':companies})
 
+
+def login_user(request: HttpRequest):
     if request.method == 'POST':
         email_address = request.POST['email_address']
         password = request.POST['password']
@@ -20,14 +29,10 @@ def home(request: HttpRequest):
             messages.success(request, "You are an active user")
             return redirect('home')
         else:
-            messages.success(request, "You are not an active user, contact us")
-            return redirect('home')
+            messages.error(request, "You are not an active user, contact us")
+            return redirect('login')
     else:
-        return render(request, 'home.html', {'companies':companies})
-
-
-def login_user(request: HttpRequest):
-    pass
+        return render(request, 'login.html')
 
 
 def logout_user(request: HttpRequest):
@@ -287,6 +292,7 @@ def debt_register(request: HttpRequest, primary_key: int):
 def all_debts_for_cnpj(request: HttpRequest):
     if request.user.is_authenticated:
         try:
+            # debts = Debt.objects.filter(creditor=user.company)
             debts = Debt.objects.all()
             return render(request, 'debts_report.html', {'debts':debts})
         except Debt.DoesNotExist:
@@ -350,44 +356,44 @@ def delete_debt(request: HttpRequest, primary_key: int):
         return redirect('home') 
 
 
-# Employee
-def add_employee(request: HttpRequest):
-    employee_form = EmployeeForm(request.POST or None)
+# CompanyUser
+def add_company_user(request: HttpRequest):
+    company_user_form = CompanyUserForm(request.POST or None)
     address_form = AddressForm(request.POST or None)
     if request.user.is_authenticated:
         if request.method == "POST":
             try:
-                if employee_form.is_valid() and address_form.is_valid():
+                if company_user_form.is_valid() and address_form.is_valid():
                     address = address_form.save()
-                    employee_form.instance.address = address
-                    company = Company.objects.get(cnpj=employee_form.cleaned_data['cnpj'])
-                    employee_form.instance.creditor = company
-                    employee_form.save()
-                    messages.success(request, "Success, Employee added")
+                    company_user_form.instance.address = address
+                    company = Company.objects.get(cnpj=company_user_form.cleaned_data['cnpj'])
+                    company_user_form.instance.creditor = company
+                    company_user_form.save()
+                    messages.success(request, "Success, Company User added")
                     return redirect('home')
                 else:
-                    messages.error(request, employee_form.errors or address_form.errors)
+                    messages.error(request, company_user_form.errors or address_form.errors)
             except Company.DoesNotExist:
-                messages.error(request, "Company with CNPJ %s not found" % employee_form.cleaned_data['cnpj'])
+                messages.error(request, "Company with CNPJ %s not found" % company_user_form.cleaned_data['cnpj'])
             except Exception as e:
                 messages.error(request, f"An Exception ocurred: {str(e)}")
                 return render(request, 'error.html')
                 
-        return render(request, 'add_employee.html', {'employee_form':employee_form, 'address_form': address_form})
+        return render(request, 'add_company_user.html', {'company_user_form':company_user_form, 'address_form': address_form})
     else:
-        messages.success(request, "You must be logged in to add Employee")
+        messages.success(request, "You must be logged in to add Company USer")
         return redirect('home')
     
 
-def employee_register(request: HttpRequest, primary_key: int):
+def company_user_register(request: HttpRequest, primary_key: int):
     if request.user.is_authenticated:
-        # Look Up Employee
-        # TODO: Return only employees if logged user has permission
+        # Look Up CompanyUSer
+        # TODO: Return only CompanyUsers if logged user has permission
         try:
-            employee = Employee.objects.get(id=primary_key)
-            return render(request, 'employee.html', {'employee':employee})
-        except Employee.DoesNotExist:
-            messages.error(request, "Employee with Id %s not found" % primary_key)
+            company_user = CompanyUser.objects.get(id=primary_key)
+            return render(request, 'company_user.html', {'company_user':company_user})
+        except CompanyUser.DoesNotExist:
+            messages.error(request, "Company User with Id %s not found" % primary_key)
         except Exception as e:
             messages.error(request, f"Unknown Exception ocurred: {str(e)}")
             return render(request, 'error.html')
@@ -395,53 +401,53 @@ def employee_register(request: HttpRequest, primary_key: int):
         messages.error(request, "You must be logged in to access this register")
         return redirect('home')
     
-# Look Up Employees
-# TODO: Bring only employees from a specific CNPJ    
-def all_employees(request: HttpRequest):
+# Look Up Company Users
+# TODO: Bring only Company Users from a specific CNPJ    
+def all_company_users(request: HttpRequest):
     if request.user.is_authenticated:
         try:
-            employees = Employee.objects.all()
-            return render(request, 'all_employees.html', {'employees': employees})
-        except Employee.DoesNotExist:
-            messages.error(request, "Employees not found")
+            company_users = CompanyUser.objects.all()
+            return render(request, 'all_company_users.html', {'company_users': company_users})
+        except CompanyUser.DoesNotExist:
+            messages.error(request, "Company Users not found")
         except Exception as e:
             messages.error(request, f"Unknown Exception ocurred: {str(e)}")
             return render(request, 'error.html')
     else:
-        messages.error(request, "You must be logged in to access employees section")
+        messages.error(request, "You must be logged in to access company users section")
         return redirect('home')
     
 
-def update_employee(request: HttpRequest, primary_key: int):
+def update_company_user(request: HttpRequest, primary_key: int):
     if request.user.is_authenticated:
         try:
-            current_employee = Employee.objects.get(id=primary_key)
-            employee_form = EmployeeForm(request.POST or None, instance=current_employee)
-            if employee_form.is_valid():
-                employee_form.save()
-                messages.success(request, "Success, Employee updated")
+            current_company_user = CompanyUser.objects.get(id=primary_key)
+            company_user_form = CompanyUserForm(request.POST or None, instance=current_company_user)
+            if company_user_form.is_valid():
+                company_user_form.save()
+                messages.success(request, "Success, Company User updated")
                 return redirect('home')
             else:
-                messages.error(request, employee_form.errors)        
+                messages.error(request, company_user_form.errors)        
             
-            return render(request, 'update_employee.html', {'employee_form':employee_form})
+            return render(request, 'update_company_user.html', {'company_user_form':company_user_form})
         
-        except Employee.DoesNotExist:
-            messages.error(request, "Employee with CPF %s not found" % employee_form.cpf)
+        except CompanyUser.DoesNotExist:
+            messages.error(request, "Company User with CPF %s not found" % company_user_form.cpf)
         except Exception as e:
             messages.error(request, f"Unknown Exception ocurred: {str(e)}")
             return render(request, 'error.html')
     else:
-        messages.error(request, "You must be logged in to update employee")
+        messages.error(request, "You must be logged in to update company user")
         return redirect('home')
     
     
-def delete_employee(request: HttpRequest, primary_key: int):
+def delete_company_user(request: HttpRequest, primary_key: int):
     if request.user.is_authenticated:
         try:
-            to_be_deleted = Employee.objects.get(id=primary_key)
+            to_be_deleted = CompanyUser.objects.get(id=primary_key)
             to_be_deleted.delete()
-            messages.success(request, "Employee deleted successfully")
+            messages.success(request, "Company User deleted successfully")
             return redirect('home')
         except Exception as e:
             messages.error(request, f"Unknown Exception ocurred: {str(e)}")

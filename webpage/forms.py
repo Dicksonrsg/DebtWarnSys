@@ -1,7 +1,9 @@
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+from django_countries.fields import CountryField
 from django import forms
-from .models import Company, Address, Debtor, Debt, Employee
+from localflavor.br import forms as lf_forms
+from .models import Company, Address, Debtor, Debt, CompanyUser
 
 
 class SignUpForm(UserCreationForm):
@@ -37,8 +39,8 @@ class AddressForm(forms.ModelForm):
     street = forms.CharField(max_length=140, required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"Street", "class":"form-control"}), label="Street")
     number = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"Number", "class":"form-control"}), label="Number")
     neighbourhood = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"Neighbourhood", "class":"form-control"}), label="Neighbourhood")
-    state = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"State", "class":"form-control"}), label="State")
-    country = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"Country", "class":"form-control"}), label="Country")
+    state = lf_forms.BRStateChoiceField(required=True)
+    country = CountryField().formfield()
     details = forms.CharField(required=False, widget=forms.widgets.TextInput(attrs={"placeholder":"Details", "class":"form-control"}), label="Details")       
 
     def clean_cep(self):
@@ -113,12 +115,12 @@ class DebtForm(forms.ModelForm):
         fields = ('contract', 'due_date', 'status', 'value', 'cpf', 'cnpj')
 
 
-class EmployeeForm(forms.ModelForm):
+class CompanyUserForm(forms.ModelForm):
     name = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"Name", "class":"form-control"}), label="Name")
     cpf = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"CPF", "class":"form-control", 'data-mask':"000.000.000-00"}), label="CPF")
     phone = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"Phone", "class":"form-control", 'data-mask':"(00) 00000-0000"}), label="Phone")
     email = forms.EmailField(required=True, widget=forms.widgets.EmailInput(attrs={"placeholder":"Email", "class":"form-control"}), label="Email")
-    role = forms.ChoiceField(choices=Employee.ROLE, label='Role')
+    role = forms.ChoiceField(choices=CompanyUser.ROLE, label='Role')
     cnpj = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"class":"form-control", 'data-mask':"00.000.000/0000-00"}), label="CNPJ")
 
     def clean_cpf(self):
@@ -134,5 +136,5 @@ class EmployeeForm(forms.ModelForm):
         return cnpj.replace('.', '').replace('/', '').replace('-', '')
     
     class Meta:
-        model = Employee
+        model = CompanyUser
         fields = ('name', 'cpf', 'phone', 'email', 'role', 'cnpj')

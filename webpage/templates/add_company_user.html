@@ -2,11 +2,11 @@
 {% block content %}
 
 <div class="col-md-6 offset-md-3">
-  <h1>Add Employee</h1>
+  <h1>Add Company User</h1>
   <form method="POST" >
     {% csrf_token %}
     <div class="form-group">
-      {{ employee_form.as_p }}
+      {{ company_user_form.as_p }}
     </div>
     <h2>New Address Details</h2>
     <div class="form-group">
