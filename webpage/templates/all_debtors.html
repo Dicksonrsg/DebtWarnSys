@@ -22,6 +22,10 @@
                     <td>{{debtor.address.street}}</td>
                 </tr>
             {% endfor %}
+        {% else %}
+          <tr>
+            <td>There are no Debtors to be displayed.</td>
+          </tr>                
         {% endif %}
         </tbody>
       </table>

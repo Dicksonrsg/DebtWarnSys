@@ -29,5 +29,6 @@ urlpatterns = [
     path('company_user/<int:primary_key>', views.company_user_register, name='company_user'),
     path('update_company_user/<int:primary_key>', views.update_company_user, name='update_company_user'),
     path('all_company_users', views.all_company_users, name='all_company_users'),
+    path('delete_company_user/<int:primary_key>', views.delete_company_user, name='delete_company_user'),
     
 ]

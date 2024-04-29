@@ -1,6 +1,7 @@
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django_countries.fields import CountryField
+from django.core.exceptions import ValidationError
 from django import forms
 from localflavor.br import forms as lf_forms
 from .models import Company, Address, Debtor, Debt, CompanyUser
@@ -13,25 +14,41 @@ class SignUpForm(UserCreationForm):
     
     class Meta:
         model = User
-        fields = ('username', 'first_name', 'last_name', 'email', 'password1', 'password2')
+        fields = ('username', 'email', 'password1', 'password2')
         
     def __init__(self, *args, **kwargs):
         super(SignUpForm, self).__init__(*args, **kwargs)
 
+        self.fields.pop('first_name')
+        self.fields.pop('last_name')
+        
         self.fields['username'].widget.attrs['class'] = 'form-control'
-        self.fields['username'].widget.attrs['placeholder'] = 'User Name'
-        self.fields['username'].label = ''
-        self.fields['username'].help_text = '<span class="form-text text-muted"><small>Required. 140 characters or fewer. Letters, digits and @/./+/-/_ only.</small></span>'
+        self.fields['username'].widget.attrs['placeholder'] = 'Email'
+        self.fields['username'].label = 'Email Address'
+        self.fields['username'].help_text = '<span class="form-text text-muted"><small>Required. Letters, digits and @/./+/-/_ only.</small></span>'
+        
+        self.fields['email'].widget.attrs['class'] = 'form-control'
+        self.fields['email'].widget.attrs['placeholder'] = 'Confirm Email'
+        self.fields['email'].label = ''
+        self.fields['email'].help_text = '<span class="form-text text-muted"><small>Required. Type the same Email address as above.</small></span>'
 
         self.fields['password1'].widget.attrs['class'] = 'form-control'
         self.fields['password1'].widget.attrs['placeholder'] = 'Password'
-        self.fields['password1'].label = ''
+        self.fields['password1'].label = 'Password'
         self.fields['password1'].help_text = '<ul class="form-text text-muted small"><li>Your password can\'t be too similar to your other personal information.</li><li>Your password must contain at least 8 characters.</li><li>Your password can\'t be a commonly used password.</li><li>Your password can\'t be entirely numeric.</li></ul>'
 
         self.fields['password2'].widget.attrs['class'] = 'form-control'
         self.fields['password2'].widget.attrs['placeholder'] = 'Confirm Password'
         self.fields['password2'].label = ''
         self.fields['password2'].help_text = '<span class="form-text text-muted"><small>Enter the same password as before, for verification.</small></span>'
+        
+    def clean(self):
+        cleaned_data = super().clean()
+        username = cleaned_data.get("username")
+        email = cleaned_data.get("email")
+        if username != email:
+            raise ValidationError("Both emails should be equal.")
+        return cleaned_data
         
 
 class AddressForm(forms.ModelForm):
@@ -78,7 +95,6 @@ class DebtorForm(forms.ModelForm):
     name = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"Name", "class":"form-control"}), label="Name")
     cpf = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"CPF", 'data-mask':"000.000.000-00", "class":"form-control"}), label="CPF")
     phone = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"Phone", 'data-mask':"(00) 00000-0000", "class":"form-control"}), label="Phone")
-    email = forms.EmailField(required=True, widget=forms.widgets.EmailInput(attrs={"placeholder":"Email", "class":"form-control"}), label="Email")
     active = forms.BooleanField(required=True, widget=forms.widgets.NullBooleanSelect(attrs={"placeholder":"Active", "class":"form-control"}), label="Active")
 
     def clean_phone(self):
@@ -91,13 +107,14 @@ class DebtorForm(forms.ModelForm):
     
     class Meta:
         model = Debtor
-        fields = ('name', 'cpf', 'phone', 'email', 'active')
+        fields = ('name', 'cpf', 'phone', 'active')
         
         
 class DebtForm(forms.ModelForm):
+    created_by = forms.EmailField(required=False, widget=forms.widgets.HiddenInput())
     contract = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"Contract", "class":"form-control"}), label="Contract")
     due_date = forms.DateField(required=True, widget=forms.widgets.DateInput(format="%m-%d-%Y", attrs={"type": "date", "class":"form-control"}), label="Due Date")
-    status = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"Status", "class":"form-control"}), label="Status")
+    status = forms.ChoiceField(choices=Debt.STATUS, label='Status')
     value = forms.FloatField(required=True, widget=forms.widgets.NumberInput(attrs={ "class":"form-control"}), label="Value")
     cpf = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"class":"form-control", 'data-mask':"000.000.000-00"}), label="CPF")
     cnpj = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"class":"form-control", 'data-mask':"00.000.000/0000-00"}), label="CNPJ")
@@ -112,14 +129,13 @@ class DebtForm(forms.ModelForm):
     
     class Meta:
         model = Debt
-        fields = ('contract', 'due_date', 'status', 'value', 'cpf', 'cnpj')
+        fields = ('created_by', 'contract', 'due_date', 'status', 'value', 'cpf', 'cnpj')
 
 
 class CompanyUserForm(forms.ModelForm):
     name = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"Name", "class":"form-control"}), label="Name")
     cpf = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"CPF", "class":"form-control", 'data-mask':"000.000.000-00"}), label="CPF")
     phone = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"Phone", "class":"form-control", 'data-mask':"(00) 00000-0000"}), label="Phone")
-    email = forms.EmailField(required=True, widget=forms.widgets.EmailInput(attrs={"placeholder":"Email", "class":"form-control"}), label="Email")
     role = forms.ChoiceField(choices=CompanyUser.ROLE, label='Role')
     cnpj = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"class":"form-control", 'data-mask':"00.000.000/0000-00"}), label="CNPJ")
 
@@ -137,4 +153,4 @@ class CompanyUserForm(forms.ModelForm):
     
     class Meta:
         model = CompanyUser
-        fields = ('name', 'cpf', 'phone', 'email', 'role', 'cnpj')
+        fields = ('name', 'cpf', 'phone', 'role', 'cnpj')

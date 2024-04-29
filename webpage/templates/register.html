@@ -16,9 +16,42 @@
             </div>
         {% endif %}        
         {{form.as_p}}
-        <button type="submit" class="btn btn-secondary">Enter</button>
+        <div class="form-check form-switch">
+            <input class="form-check-input" name="isDebtor" type="checkbox" role="switch" id="isDebtor">
+            <label class="form-check-label" for="isDebtor">Debtor</label>
+          </div>
+          <div class="mb-3" id="debtorCPFContainer" style="display: none;">
+            <label for="debtorCPF" class="form-label">CPF</label>
+            <input type="text" name="debtorCPF" class="form-control" id="debtorCPF" aria-describedby="cpfHelp">
+            <div id="cpfHelp" class="form-text">Inform CPF, if you're a Debtor.</div>
+          </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
         <button type="reset" class="btn btn-secondary">Cancel</button>       
     </form>
-
 </div>
+<script>  
+    const debtorSwitch = document.getElementById('isDebtor');
+    const debtorCPFContainer = document.getElementById('debtorCPFContainer');
+    const debtorCPFInput = document.getElementById('debtorCPF');
+  
+    debtorSwitch.addEventListener('change', function() {
+      if (this.checked) {
+        debtorCPFContainer.style.display = 'block';
+        debtorCPFInput.required = true; // Set required attribute when displayed
+      } else {
+        debtorCPFContainer.style.display = 'none';
+        debtorCPFInput.required = false; // Remove required attribute when hidden
+      }
+    });
+
+    debtorCPFInput.addEventListener('input', function() {
+        let cpf = this.value.replace(/\D/g, ''); // Remove non-digits
+        cpf = cpf.slice(0, 11); // Limit to 11 digits
+    
+        cpf = cpf.replace(/(\d{3})(\d{3})(\d{3})/, '$1.$2.$3'); // Add dots after 3rd and 6th digits
+        cpf = cpf.replace(/(\d{3})(\d{1})/, '$1-$2'); // Add dash after 9th digit
+    
+        this.value = cpf;
+      });
+  </script>
 {% endblock content %}
