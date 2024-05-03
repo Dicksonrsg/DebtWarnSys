@@ -1,18 +1,28 @@
 {% extends "base.html" %}
+{% load filters %}
 {% block content %}
-<div class="card">
-    <div class="card-header">
-        {{company_user.name}}
+  {% if user.is_authenticated and perms.view_companyuser %}
+    <div class="card">
+      <div class="card-header">
+          {{company_user.name}}
+      </div>
+      <div class="card-body">
+        <p class="card-text"><strong>CPF: </strong>{{company_user.cpf|format_cpf}}</p>
+        <p class="card-text"><strong>Phone: </strong>{{company_user.phone}}</p>
+        <p class="card-text"><strong>Email: </strong>{{company_user.email}}</p>
+        <p class="card-text"><strong>Address: </strong>{{company_user.address.street}}</p>
+        <p class="card-text"><strong>Role: </strong>{{company_user.role}}</p>
+      </div>
     </div>
-    <div class="card-body">
-      <p class="card-text"><strong>CPF: </strong>{{company_user.cpf}}</p>
-      <p class="card-text"><strong>Phone: </strong>{{company_user.phone}}</p>
-      <p class="card-text"><strong>Email: </strong>{{company_user.email}}</p>
-      <p class="card-text"><strong>Address: </strong>{{company_user.address.street}}</p>
-      <p class="card-text"><strong>Role: </strong>{{company_user.role}}</p>
+    {% if perms.change_companyuser %}
+      <a href="{% url "update_company_user" company_user.id %}" class="btn btn-success">Update</a>
+    {% endif %}
+    {% if perms.delete_companyuser %}
+      <a href="{% url "delete_company_user" company_user.id %}" class="btn btn-danger">Delete</a>
+    {% endif %}
+  {% else %}
+    <div class="alert alert-warning">
+      You are not authorized to view User. Please contact your administrator if you need access.
     </div>
-</div>
-<a href="{% url "update_company_user" company_user.id %}" class="btn btn-success">Update</a>
-<a href="{% url "delete_company_user" company_user.id %}" class="btn btn-danger">Delete</a>
-
+  {% endif %}
 {% endblock content %}

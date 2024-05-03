@@ -2,11 +2,11 @@
 {% block content %}
 
 <head>
-    <title>An Error Occurred ({{ request.status_code }})</title>
+    <title>An Error Occurred.</title>
 </head>
 <body>
     <h1>Oops! Something went wrong.</h1>
-    <p>We encountered an error while processing your request. The error code is {{ request.status_code }}.</p>
+    <p>We encountered an error while processing your request. The error code is <strong>{{ status_code }}</strong>.</p>
     <ul>
         <li>If you are aware of what caused the error, you can try fixing it and resubmitting your request.</li>
         <li>If you're unsure about the cause, you can try refreshing the page.</li>

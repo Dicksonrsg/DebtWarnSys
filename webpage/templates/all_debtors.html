@@ -1,35 +1,35 @@
 {% extends "base.html" %}
-
+{% load filters %}
 {% block content %}
-
-    {% if user.is_authenticated %}
+  {% if user.is_authenticated and perms.view_debtor %}
     <h1>Debtors</h1>
-
     <table class="table table-hover">
-        <thead>
+      <thead>
+        <tr>
+          <th scope="col">Name:</th>
+          <th scope="col">CPF</th>
+          <th scope="col">Address</th>
+        </tr>
+      </thead>
+    <tbody>
+      {% if debtors %}
+        {% for debtor in debtors %}
           <tr>
-            <th scope="col">Name:</th>
-            <th scope="col">CPF</th>
-            <th scope="col">Address</th>
+            <td><a href="{% url "debtor" debtor.id %}">{{debtor.name}}</td>
+            <td>{{debtor.cpf|format_cpf}}</td>
+            <td>{{debtor.address.street}}</td>
           </tr>
-        </thead>
-        <tbody>
-        {% if debtors %}
-            {% for debtor in debtors %}
-                <tr>
-                    <td><a href="{% url "debtor" debtor.id %}">{{debtor.name}}</td>
-                    <td>{{debtor.cpf}}</td>
-                    <td>{{debtor.address.street}}</td>
-                </tr>
-            {% endfor %}
-        {% else %}
-          <tr>
-            <td>There are no Debtors to be displayed.</td>
-          </tr>                
-        {% endif %}
-        </tbody>
-      </table>
-
-    {% endif %}
-
+        {% endfor %}
+      {% else %}
+        <tr>
+          <td>There are no Debtors to be displayed.</td>
+        </tr>                
+      {% endif %}
+      </tbody>
+    </table>
+  {% else %}
+    <div class="alert alert-warning">
+      You are not authorized to view Debtors. Please contact your administrator if you need access.
+    </div>
+  {% endif %}
 {% endblock content %}

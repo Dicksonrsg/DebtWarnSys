@@ -1,15 +1,25 @@
 {% extends "base.html" %}
+{% load filters %}
 {% block content %}
-<div class="card">
-    <div class="card-header">
-        {{debtor.name}}
+  {% if user.is_authenticated and perms.view_debtor %}
+    <div class="card">
+      <div class="card-header">
+          {{debtor.name}}
+      </div>
+      <div class="card-body">
+        <p class="card-text"><strong>CPF: </strong>{{debtor.cpf|format_cpf}}</p>
+        <p class="card-text"><strong>Address: </strong>{{debtor.address.street}}</p>
+      </div>
     </div>
-    <div class="card-body">
-      <p class="card-text"><strong>CPF: </strong>{{debtor.cpf}}</p>
-      <p class="card-text"><strong>Address: </strong>{{debtor.address.street}}</p>
+    {% if perms.change_debtor %}
+      <a href="{% url "update_debtor" debtor.id %}" class="btn btn-success">Update</a>
+    {% endif %}
+    {% if perms.delete_debtor %}
+      <a href="{% url "delete_debtor" debtor.id %}" class="btn btn-danger">Delete</a>
+    {% endif %}
+  {% else %}
+    <div class="alert alert-warning">
+      You are not authorized to view Debtor. Please contact your administrator if you need access.
     </div>
-</div>
-<a href="{% url "update_company" debtor.id %}" class="btn btn-success">Update</a>
-<a href="{% url "delete_company" debtor.id %}" class="btn btn-danger">Delete</a>
-
+  {% endif %}
 {% endblock content %}

@@ -50,9 +50,7 @@ def assign_group(user_name: str, role: str):
         "Debtor": [
             "add_debtor",
             "change_debtor",
-            "delete_debtor",
             "view_debtor",
-            "add_debt",
             "view_debt",
         ],
     }

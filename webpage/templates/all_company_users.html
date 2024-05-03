@@ -1,33 +1,37 @@
 {% extends "base.html" %}
-
+{% load filters %} 
 {% block content %}
-
-    {% if user.is_authenticated %}
+  {% if user.is_authenticated and perms.view_companyuser %}
     <h1>Company Users</h1>
-
     <table class="table table-hover">
-        <thead>
+      <thead>
+        <tr>
+          <th scope="col">Name</th>
+          <th scope="col">CPF</th>
+          <th scope="col">Role</th>
+          <th scope="col">Address</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% if company_users %}
+        {% for company_user in company_users %}
           <tr>
-            <th scope="col">Name</th>
-            <th scope="col">CPF</th>
-            <th scope="col">Role</th>
-            <th scope="col">Address</th>
+            <td><a href="{% url "company_user" company_user.id %}">{{company_user.name}}</td>
+            <td>{{company_user.cpf|format_cpf}}</td>
+            <td>{{company_user.role}}</td>
+            <td>{{company_user.address.street}}</td>
           </tr>
-        </thead>
-        <tbody>
-        {% if company_users %}
-            {% for company_user in company_users %}
-                <tr>
-                    <td><a href="{% url "company_user" company_user.id %}">{{company_user.name}}</td>
-                    <td>{{company_user.cpf}}</td>
-                    <td>{{company_user.role}}</td>
-                    <td>{{company_user.address.street}}</td>
-                </tr>
-            {% endfor %}
-        {% endif %}
-        </tbody>
-      </table>
-
-    {% endif %}
-
+        {% endfor %}
+      {% else %}
+        <tr>
+          <td>There are no Users to be displayed.</td>
+        </tr>                 
+      {% endif %}
+      </tbody>
+    </table>
+  {% else %}
+    <div class="alert alert-warning">
+      You are not authorized to view Users. Please contact your administrator if you need access.
+    </div>
+  {% endif %}
 {% endblock content %}

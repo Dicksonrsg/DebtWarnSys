@@ -1,16 +1,20 @@
 {% extends "base.html" %}
 {% block content %}
-
-<div class="col-md-6 offset-md-3">
-  <h1>Add Debt</h1>
-  <form method="POST" >
-    {% csrf_token %}
-    <div class="form-group">
-      {{ debt_form.as_p }}
+  {% if user.is_authenticated and perms.add_debt %}
+    <div class="col-md-6 offset-md-3">
+      <h1>Add Debt</h1>
+      <form method="POST" >
+        {% csrf_token %}
+        <div class="form-group">
+          {{ debt_form.as_p }}
+        </div>
+        <button type="submit" class="btn btn-primary">Add</button>
+        <button type="reset" class="btn btn-secondary">Cancel</button>
+      </form>
     </div>
-    <button type="submit" class="btn btn-primary">Add</button>
-    <button type="reset" class="btn btn-secondary">Cancel</button>
-  </form>
-</div>
-
+  {% else %}
+    <div class="alert alert-warning">
+      You are not authorized to add Debts. Please contact your administrator if you need access.
+    </div>
+  {% endif %}
 {% endblock content %}

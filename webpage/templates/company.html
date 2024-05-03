@@ -1,15 +1,25 @@
 {% extends "base.html" %}
+{% load filters %}
 {% block content %}
-<div class="card">
-    <div class="card-header">
-        {{user_company.company_name}}
+  {% if user.is_authenticated and perms.view_company %}
+    <div class="card">
+      <div class="card-header">
+          {{user_company.company_name}}
+      </div>
+      <div class="card-body">
+        <p class="card-text"><strong>CNPJ: </strong>{{user_company.cnpj|format_cnpj}}</p>
+        <p class="card-text"><strong>Address: </strong>{{user_company.address.street}}</p>
+      </div>
     </div>
-    <div class="card-body">
-      <p class="card-text"><strong>CNPJ: </strong>{{user_company.cnpj}}</p>
-      <p class="card-text"><strong>Address: </strong>{{user_company.address.street}}</p>
+    {% if perms.change_company %}
+      <a href="{% url "update_company" user_company.id %}" class="btn btn-success">Update</a>
+    {% endif %}
+    {% if perms.delete_company %}
+      <a href="{% url "delete_company" user_company.id %}" class="btn btn-danger">Delete</a>
+    {% endif %}
+  {% else %}
+    <div class="alert alert-warning">
+      You are not authorized to view Company. Please contact your administrator if you need access.
     </div>
-</div>
-<a href="{% url "update_company" user_company.id %}" class="btn btn-success">Update</a>
-<a href="{% url "delete_company" user_company.id %}" class="btn btn-danger">Delete</a>
-
+  {% endif %}
 {% endblock content %}

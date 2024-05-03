@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.core.handlers.wsgi import WSGIRequest
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from .forms import SignUpForm, AddressForm, CompanyForm, DebtorForm, DebtForm, CompanyUserForm
 from .models import Company, Address, Debtor, Debt, CompanyUser
 from .helper.auth import assign_group
@@ -20,6 +20,7 @@ def home(request: WSGIRequest):
             return render(request, 'home.html', {'companies':companies})
 
 
+# TODO: Redirect Debtor to a different home
 def login_user(request: WSGIRequest):
     if request.method == 'POST':
         user_name = request.POST['email_address']
@@ -74,8 +75,9 @@ def register_user(request: WSGIRequest):
                 messages.error(request, form.errors)
 
         except Exception as e:
-            messages.error(request, f"Unknown Exception ocurred: {str(e)}")
-            return render(request, 'error.html')
+            status_code = getattr(e, 'status_code', None)
+            messages.error(request, f"An Exception ocurred: {str(e)}")
+            return render(request, 'error.html', {'status_code': status_code})
     else:
         form = SignUpForm()
         return render(request, 'register.html', {'form':form})
@@ -85,7 +87,8 @@ def register_user(request: WSGIRequest):
     
 
 # Company
-@login_required(login_url="login")    
+@login_required(login_url="login")
+@permission_required(perm="add_company", login_url="login", raise_exception=True)     
 def add_company(request: WSGIRequest):
     company_form = CompanyForm(request.POST or None)
     address_form = AddressForm(request.POST or None)
@@ -100,13 +103,15 @@ def add_company(request: WSGIRequest):
             else:
                 messages.error(request, company_form.errors)
         except Exception as e:
-            messages.error(request, f"Unknown Exception ocurred: {str(e)}")
-            return render(request, 'error.html')                
+            status_code = getattr(e, 'status_code', None)
+            messages.error(request, f"An Exception ocurred: {str(e)}")
+            return render(request, 'error.html', {'status_code': status_code})               
             
     return render(request, 'add_company.html', {'company_form':company_form, 'address_form': address_form})
 
 
 @login_required(login_url="login")
+@permission_required(perm="view_company", login_url="login", raise_exception=True)
 def company_register(request: WSGIRequest, primary_key: int):
     try:
     # Look Up Company
@@ -115,11 +120,13 @@ def company_register(request: WSGIRequest, primary_key: int):
     except Company.DoesNotExist:
         messages.error(request, "Companies not found")
     except Exception as e:
-        messages.error(request, f"Unknown Exception ocurred: {str(e)}")
-        return render(request, 'error.html')
+        status_code = getattr(e, 'status_code', None)
+        messages.error(request, f"An Exception ocurred: {str(e)}")
+        return render(request, 'error.html', {'status_code': status_code})
 
 
-@login_required(login_url="login")    
+@login_required(login_url="login")
+@permission_required(perm="change_company", login_url="login", raise_exception=True)    
 def update_company(request: WSGIRequest, primary_key: int):
     try:
         current_company = Company.objects.get(id=primary_key)
@@ -142,12 +149,14 @@ def update_company(request: WSGIRequest, primary_key: int):
     except Address.DoesNotExist as e:
         messages.error(request, "Address with Id %s not found" % current_company.address.id)
     except Exception as e:
+        status_code = getattr(e, 'status_code', None)
         messages.error(request, f"An Exception ocurred: {str(e)}")
-        return render(request, 'error.html')         
+        return render(request, 'error.html', {'status_code': status_code})        
 
 
 # TODO: a company user can't delete it
 @login_required(login_url="login")
+@permission_required(perm="delete_company", login_url="login", raise_exception=True)
 def delete_company(request: WSGIRequest, primary_key: int):
     try:
         to_be_deleted = Company.objects.get(id=primary_key)
@@ -155,21 +164,23 @@ def delete_company(request: WSGIRequest, primary_key: int):
         messages.success(request, "Company deleted successfully")
         return redirect('home')
     except Exception as e:
-        messages.error(request, f"Unknown Exception ocurred: {str(e)}")
-        return render(request, 'error.html') 
+        status_code = getattr(e, 'status_code', None)
+        messages.error(request, f"An Exception ocurred: {str(e)}")
+        return render(request, 'error.html', {'status_code': status_code}) 
 
  
 
 # Debtor
 # TODO: Design a different home for debtors 
 @login_required(login_url="login")
+@permission_required(perm="add_debtor", login_url="login", raise_exception=True)
 def add_debtor(request: WSGIRequest):
     debtor_form = DebtorForm(request.POST or None)
     address_form = AddressForm(request.POST or None)
     if request.method == "POST":
         try:
             if debtor_form.is_valid() and address_form.is_valid():
-                current_user = get_auth_user(id=request.user.id)
+                current_user = get_auth_user(user_id=request.user.id)
                 address = address_form.save()
                 debtor_form.instance.address = address
                 debtor_form.instance.user_auth = current_user
@@ -180,13 +191,15 @@ def add_debtor(request: WSGIRequest):
             else:
                 messages.error(request, debtor_form.errors)
         except Exception as e:
-            messages.error(request, f"Unknown Exception ocurred: {str(e)}")
-            return render(request, 'error.html') 
+            status_code = getattr(e, 'status_code', None)
+            messages.error(request, f"An Exception ocurred: {str(e)}")
+            return render(request, 'error.html', {'status_code': status_code}) 
                         
     return render(request, 'add_debtor.html', {'debtor_form':debtor_form, 'address_form': address_form})
 
     
 @login_required(login_url="login")
+@permission_required(perm="view_debtor", login_url="login", raise_exception=True)
 def debtor_register(request: WSGIRequest, primary_key: int):
     try:
         # Look Up Debtor
@@ -196,11 +209,13 @@ def debtor_register(request: WSGIRequest, primary_key: int):
         messages.error(request, f"Debtor was not found for Id: {primary_key}")
         return redirect('all_debtors')
     except Exception as e:
-        messages.error(request, f"Unknown Exception ocurred: {str(e)}")
-        return render(request, 'error.html')
+        status_code = getattr(e, 'status_code', None)
+        messages.error(request, f"An Exception ocurred: {str(e)}")
+        return render(request, 'error.html', {'status_code': status_code})
 
 
 @login_required(login_url="login")
+@permission_required(perm="view_debtor", login_url="login", raise_exception=True)
 def all_debtors(request: WSGIRequest):
     try:
         debtors = Debtor.objects.all()
@@ -209,16 +224,18 @@ def all_debtors(request: WSGIRequest):
         messages.error(request, f"There are no Debtors to be displayed")
         return render(request, 'all_debtors.html', {'debtors':None})
     except Exception as e:
+        status_code = getattr(e, 'status_code', None)
         messages.error(request, f"An Exception ocurred: {str(e)}")
-        return render(request, 'error.html')
+        return render(request, 'error.html', {'status_code': status_code})
 
     
 @login_required(login_url="login")
+@permission_required(perm="change_debtor", login_url="login", raise_exception=True)
 def update_debtor(request: WSGIRequest, primary_key: int):
     try:
         current_debtor = Debtor.objects.get(id=primary_key)
         current_address = Address.objects.get(id=current_debtor.address.id)
-        current_user = get_auth_user(id=request.user.id)
+        current_user = get_auth_user(user_id=request.user.id)
         debtor_form = DebtorForm(request.POST or None, instance=current_debtor)
         address_form = AddressForm(request.POST or None, instance=current_address)
         if debtor_form.is_valid() and address_form.is_valid():
@@ -237,12 +254,14 @@ def update_debtor(request: WSGIRequest, primary_key: int):
     except Address.DoesNotExist:
         messages.error(request, "Address with Id %s not found" % current_debtor.address.id)
     except Exception as e:
+        status_code = getattr(e, 'status_code', None)
         messages.error(request, f"An Exception ocurred: {str(e)}")
-        return render(request, 'error.html')
+        return render(request, 'error.html', {'status_code': status_code})
     
     
 # TODO: Debtor can't delete themselves
 @login_required(login_url="login")
+@permission_required(perm="delete_debtor", login_url="login", raise_exception=True)
 def delete_debtor(request: WSGIRequest, primary_key: int):
     try:
         to_be_deleted = Debtor.objects.get(id=primary_key)
@@ -250,12 +269,14 @@ def delete_debtor(request: WSGIRequest, primary_key: int):
         messages.success(request, "Debtor deleted successfully")
         return redirect('home')
     except Exception as e:
+        status_code = getattr(e, 'status_code', None)
         messages.error(request, f"An Exception ocurred: {str(e)}")
-        return render(request, 'error.html')
+        return render(request, 'error.html', {'status_code': status_code})
  
     
 # Debt
 @login_required(login_url="login")
+@permission_required(perm="add_debt", login_url="login", raise_exception=True)
 def add_debt(request: WSGIRequest):
     debt_form = DebtForm(request.POST or None)
     if request.method == "POST":
@@ -277,14 +298,16 @@ def add_debt(request: WSGIRequest):
         except Debtor.DoesNotExist:
             messages.error(request, "Debtor with CPF %s not found" % debt_form.cleaned_data['cpf'])
         except Exception as e:
+            status_code = getattr(e, 'status_code', None)
             messages.error(request, f"An Exception ocurred: {str(e)}")
-            return render(request, 'error.html')
+            return render(request, 'error.html', {'status_code': status_code})
             
     return render(request, 'add_debt.html', {'debt_form':debt_form})
 
     
 
 @login_required(login_url="login")
+@permission_required(perm="view_debt", login_url="login", raise_exception=True)
 def debt_register(request: WSGIRequest, primary_key: int):
     try:
         # Look Up Debt
@@ -293,13 +316,15 @@ def debt_register(request: WSGIRequest, primary_key: int):
     except Debt.DoesNotExist:
         messages.error(request, "Debt with Id %s not found" % primary_key)
     except Exception as e:
+        status_code = getattr(e, 'status_code', None)
         messages.error(request, f"An Exception ocurred: {str(e)}")
-        return render(request, 'error.html')
+        return render(request, 'error.html', {'status_code': status_code})
 
     
 # Look Up Debts
 # TODO: Get Debts by company
-@login_required(login_url="login")   
+@login_required(login_url="login")
+@permission_required(perm="view_debt", login_url="login", raise_exception=True)  
 def all_debts_for_cnpj(request: WSGIRequest):
     try:
         # debts = Debt.objects.filter(creditor=user.company)
@@ -308,23 +333,30 @@ def all_debts_for_cnpj(request: WSGIRequest):
     except Debt.DoesNotExist:
         messages.error(request, "Debts not found")
     except Exception as e:
+        status_code = getattr(e, 'status_code', None)
         messages.error(request, f"An Exception ocurred: {str(e)}")
-        return render(request, 'error.html')
+        return render(request, 'error.html', {'status_code': status_code})
     
 
-@login_required(login_url="login")     
-def all_debts_for_cpf(request: WSGIRequest, debtor_cpf: str):
+@login_required(login_url="login")
+@permission_required(perm="view_debt", login_url="login", raise_exception=True)     
+def all_my_debts(request: WSGIRequest):
     try:
-        debts = Debt.objects.filter(cpf=debtor_cpf)
+        debtor = Debtor.objects.get(user_auth=request.user)
+        debts = Debt.objects.filter(cpf=debtor.cpf)
         return render(request, 'my_debts.html', {'debts': debts})
+    except Debtor.DoesNotExist:
+        messages.error(request, "Debtor not found")
     except Debt.DoesNotExist:
         messages.error(request, "Debts not found")
     except Exception as e:
+        status_code = getattr(e, 'status_code', None)
         messages.error(request, f"An Exception ocurred: {str(e)}")
-        return render(request, 'error.html')
+        return render(request, 'error.html', {'status_code': status_code})
 
 
 @login_required(login_url="login")
+@permission_required(perm="change_debt", login_url="login", raise_exception=True)
 def update_debt(request: WSGIRequest, primary_key: int):
     try:
         current_debt = Debt.objects.get(id=primary_key)
@@ -340,12 +372,14 @@ def update_debt(request: WSGIRequest, primary_key: int):
     except Debt.DoesNotExist:
         messages.error(request, "Debt with Id %s not found" % primary_key)
     except Exception as e:
+        status_code = getattr(e, 'status_code', None)
         messages.error(request, f"An Exception ocurred: {str(e)}")
-        return render(request, 'error.html')        
+        return render(request, 'error.html', {'status_code': status_code})        
 
     
 # TODO: Only admin can delete Debts
-@login_required(login_url="login") 
+@login_required(login_url="login")
+@permission_required(perm="delete_debt", login_url="login", raise_exception=True)
 def delete_debt(request: WSGIRequest, primary_key: int):
     try:
         to_be_deleted = Debt.objects.get(id=primary_key)
@@ -353,12 +387,14 @@ def delete_debt(request: WSGIRequest, primary_key: int):
         messages.success(request, "Debt deleted successfully")
         return redirect('home')
     except Exception as e:
+        status_code = getattr(e, 'status_code', None)
         messages.error(request, f"An Exception ocurred: {str(e)}")
-        return render(request, 'error.html') 
+        return render(request, 'error.html', {'status_code': status_code}) 
 
 
 # CompanyUser
 @login_required(login_url="login")
+@permission_required(perm="add_companyuser", login_url="login", raise_exception=True)
 def add_company_user(request: WSGIRequest):
     company_user_form = CompanyUserForm(request.POST or None)
     address_form = AddressForm(request.POST or None)
@@ -369,7 +405,7 @@ def add_company_user(request: WSGIRequest):
                 company_user_form.instance.address = address
                 company = Company.objects.get(cnpj=company_user_form.cleaned_data['cnpj'])
                 company_user_form.instance.creditor = company
-                user_auth = get_auth_user(id=request.user.id)
+                user_auth = get_auth_user(user_id=request.user.id)
                 company_user_form.instance.user_auth = user_auth
                 company_user_form.save()
                 assign_group(user_name=request.user.username, role=company_user_form.cleaned_data['role'])
@@ -380,14 +416,16 @@ def add_company_user(request: WSGIRequest):
         except Company.DoesNotExist:
             messages.error(request, "Company with CNPJ %s not found" % company_user_form.cleaned_data['cnpj'])
         except Exception as e:
+            status_code = getattr(e, 'status_code', None)
             messages.error(request, f"An Exception ocurred: {str(e)}")
-            return render(request, 'error.html')
+            return render(request, 'error.html', {'status_code': status_code})
             
     return render(request, 'add_company_user.html', {'company_user_form':company_user_form, 'address_form': address_form})
 
 
 # TODO: Return only CompanyUsers if logged user has permission    
-@login_required(login_url="login") 
+@login_required(login_url="login")
+@permission_required(perm="view_companyuser", login_url="login", raise_exception=True) 
 def company_user_register(request: WSGIRequest, primary_key: int):
         # Look Up CompanyUSer        
     try:
@@ -396,13 +434,15 @@ def company_user_register(request: WSGIRequest, primary_key: int):
     except CompanyUser.DoesNotExist:
         messages.error(request, "Company User with Id %s not found" % primary_key)
     except Exception as e:
+        status_code = getattr(e, 'status_code', None)
         messages.error(request, f"An Exception ocurred: {str(e)}")
-        return render(request, 'error.html')
+        return render(request, 'error.html', {'status_code': status_code})
 
 
 # Look Up Company Users
 # TODO: Bring only Company Users from a specific CNPJ
-@login_required(login_url="login")    
+@login_required(login_url="login")
+@permission_required(perm="view_companyuser", login_url="login", raise_exception=True)    
 def all_company_users(request: WSGIRequest):
     try:
         company_users = CompanyUser.objects.all()
@@ -410,11 +450,13 @@ def all_company_users(request: WSGIRequest):
     except CompanyUser.DoesNotExist:
         messages.error(request, "Company Users not found")
     except Exception as e:
+        status_code = getattr(e, 'status_code', None)
         messages.error(request, f"An Exception ocurred: {str(e)}")
-        return render(request, 'error.html')
+        return render(request, 'error.html', {'status_code': status_code})
 
     
 @login_required(login_url="login")
+@permission_required(perm="change_companyuser", login_url="login", raise_exception=True)
 def update_company_user(request: WSGIRequest, primary_key: int):
     try:
         current_company_user = CompanyUser.objects.get(id=primary_key)
@@ -431,12 +473,14 @@ def update_company_user(request: WSGIRequest, primary_key: int):
     except CompanyUser.DoesNotExist:
         messages.error(request, "Company User with CPF %s not found" % company_user_form.cpf)
     except Exception as e:
-        messages.error(request, f"Unknown Exception ocurred: {str(e)}")
-        return render(request, 'error.html')
+        status_code = getattr(e, 'status_code', None)
+        messages.error(request, f"An Exception ocurred: {str(e)}")
+        return render(request, 'error.html', {'status_code': status_code})
 
     
 # TODO: User can't delete themselves
 @login_required(login_url="login")
+@permission_required(perm="delete_companyuser", login_url="login", raise_exception=True)
 def delete_company_user(request: WSGIRequest, primary_key: int):
     try:
         to_be_deleted = CompanyUser.objects.get(id=primary_key)
@@ -444,5 +488,7 @@ def delete_company_user(request: WSGIRequest, primary_key: int):
         messages.success(request, "Company User deleted successfully")
         return redirect('home')
     except Exception as e:
-        messages.error(request, f"Unknown Exception ocurred: {str(e)}") 
+        status_code = getattr(e, 'status_code', None)
+        messages.error(request, f"An Exception ocurred: {str(e)}")
+        return render(request, 'error.html', {'status_code': status_code}) 
     

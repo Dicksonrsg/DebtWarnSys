@@ -7,40 +7,78 @@
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           {% if user.is_authenticated %}
-          <li class="nav-item">
-            <a class="nav-link" href="{% url "add_company" %}">Add Company</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{% url "add_debtor" %}">Add Debtor</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{% url "add_debt" %}">Add Debt</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{% url "add_company_user" %}">Add Company User</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{% url "all_debtors" %}">Debtors</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{% url "all_company_users" %}">Company Users</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{% url "debts_report" %}">Debts Report</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">Logged in as <strong>{{user.email}}</strong></a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{% url "logout" %}">Log out</a>
-          </li>
+            {% if perms.add_company %} 
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  Company
+                </a>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="{% url "add_company" %}">Add Company</a></li>
+                  <li><a class="dropdown-item" href="{% url "home" %}">View Company</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" href="#">Search - To be added</a></li>
+                </ul>
+              </li>
+            {% endif %}
+            {% if perms.add_debt %}
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  Debts
+                </a>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="{% url "add_debt" %}">Add Debt</a></li>
+                  <li><a class="dropdown-item" href="{% url "debts_report" %}">Debts Report</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" href="#">Something else here</a></li>
+                </ul>
+              </li>
+            {% endif %}
+            {% if perms.add_companyuser %}
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  Company Users
+                </a>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="{% url "add_company_user" %}">Add User</a></li>
+                  <li><a class="dropdown-item" href="{% url "all_company_users" %}">View Users</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" href="#">Something else here</a></li>
+                </ul>
+              </li>
+            {% endif %}
+            {% if perms.add_debtor %}
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  Debtors
+                </a>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="{% url "add_debtor" %}">Add Debtor</a></li>
+                  <li><a class="dropdown-item" href="{% url "all_debtors" %}">View Debtors</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" href="#">Something else here</a></li>
+                </ul>
+              </li>
+            {% else %}
+              <li class="nav-item">
+                <a class="nav-link" href="{% url "my_debts" %}">My Debts</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">Profile</a>
+              </li>              
+            {% endif %}
+            <li class="nav-item">
+              <a class="nav-link" href="#">Logged in as <strong>{{user.email}}</strong></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url "logout" %}">Log out</a>
+            </li>
           {% else %}
-          <li class="nav-item">
-            <a class="nav-link" href="{% url "register" %}">Register</a>
-          </li>          
-          <li class="nav-item">
-            <a class="nav-link" href="{% url "home" %}">Log in</a>
-          </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url "register" %}">Register</a>
+            </li>          
+            <li class="nav-item">
+              <a class="nav-link" href="{% url "home" %}">Log in</a>
+            </li>
           {% endif %}
         </ul>
       </div>
