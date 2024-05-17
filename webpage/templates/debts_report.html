@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
-  {% if user.is_authenticated and perms.view_debt %}
+  {% if user.is_authenticated and perms.webpage.view_debt %}
     <h1>Debts Report</h1>
     <table class="table table-hover table-sm">
       <thead>

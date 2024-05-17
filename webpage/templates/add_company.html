@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
-  {% if user.is_authenticated and perms.add_company %}
+  {% if user.is_authenticated and perms.webpage.add_company %}
     <div class="col-md-6 offset-md-3">
       <h1>Add Company</h1>
       <form method="POST" action="{% url "add_company" %}">

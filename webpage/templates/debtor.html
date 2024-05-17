@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load filters %}
 {% block content %}
-  {% if user.is_authenticated and perms.view_debtor %}
+  {% if user.is_authenticated and perms.webpage.view_debtor %}
     <div class="card">
       <div class="card-header">
           {{debtor.name}}
@@ -11,10 +11,10 @@
         <p class="card-text"><strong>Address: </strong>{{debtor.address.street}}</p>
       </div>
     </div>
-    {% if perms.change_debtor %}
+    {% if perms.webpage.change_debtor %}
       <a href="{% url "update_debtor" debtor.id %}" class="btn btn-success">Update</a>
     {% endif %}
-    {% if perms.delete_debtor %}
+    {% if perms.webpage.delete_debtor %}
       <a href="{% url "delete_debtor" debtor.id %}" class="btn btn-danger">Delete</a>
     {% endif %}
   {% else %}

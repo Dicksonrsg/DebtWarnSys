@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load filters %}
 {% block content %}
-  {% if user.is_authenticated and perms.view_companyuser %}
+  {% if user.is_authenticated and perms.webpage.view_companyuser %}
     <div class="card">
       <div class="card-header">
           {{company_user.name}}
@@ -14,10 +14,10 @@
         <p class="card-text"><strong>Role: </strong>{{company_user.role}}</p>
       </div>
     </div>
-    {% if perms.change_companyuser %}
+    {% if perms.webpage.change_companyuser %}
       <a href="{% url "update_company_user" company_user.id %}" class="btn btn-success">Update</a>
     {% endif %}
-    {% if perms.delete_companyuser %}
+    {% if perms.webpage.delete_companyuser %}
       <a href="{% url "delete_company_user" company_user.id %}" class="btn btn-danger">Delete</a>
     {% endif %}
   {% else %}

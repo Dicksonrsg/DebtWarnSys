@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
-    {% if user.is_authenticated and perms.change_debtor %}
+    {% if user.is_authenticated and perms.webpage.change_debtor %}
         <div class="col-md-6 offset-md-3">
             <h1>Update Debtor</h1>
             <form method="POST" >

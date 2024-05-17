@@ -7,7 +7,7 @@
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           {% if user.is_authenticated %}
-            {% if perms.add_company %} 
+            {% if perms.webpage.add_company %} 
               <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                   Company
@@ -20,7 +20,7 @@
                 </ul>
               </li>
             {% endif %}
-            {% if perms.add_debt %}
+            {% if perms.webpage.add_debt %}
               <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                   Debts
@@ -33,7 +33,7 @@
                 </ul>
               </li>
             {% endif %}
-            {% if perms.add_companyuser %}
+            {% if perms.webpage.add_companyuser %}
               <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                   Company Users
@@ -46,7 +46,7 @@
                 </ul>
               </li>
             {% endif %}
-            {% if perms.add_debtor %}
+            {% if perms.webpage.add_debtor %}
               <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                   Debtors
@@ -57,17 +57,18 @@
                   <li><hr class="dropdown-divider"></li>
                   <li><a class="dropdown-item" href="#">Something else here</a></li>
                 </ul>
-              </li>
-            {% else %}
+              </li>           
+            {% endif %}
+            {% if not perms.webpage.view_company %}
               <li class="nav-item">
                 <a class="nav-link" href="{% url "my_debts" %}">My Debts</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#">Profile</a>
-              </li>              
+              </li> 
             {% endif %}
+            <li class="nav-item"> 
+              <a class="nav-link" href="#"><strong>{{user.email}}</strong></a>
+            </li>
             <li class="nav-item">
-              <a class="nav-link" href="#">Logged in as <strong>{{user.email}}</strong></a>
+              <a class="nav-link" href="#"></a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="{% url "logout" %}">Log out</a>

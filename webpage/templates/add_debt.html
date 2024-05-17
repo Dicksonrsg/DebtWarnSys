@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
-  {% if user.is_authenticated and perms.add_debt %}
+  {% if user.is_authenticated and perms.webpage.add_debt %}
     <div class="col-md-6 offset-md-3">
       <h1>Add Debt</h1>
       <form method="POST" >

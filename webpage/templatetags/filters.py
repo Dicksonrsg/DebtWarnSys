@@ -14,7 +14,6 @@ def format_cpf(cpf: str):
 
         return f"{cpf[:3]}.{cpf[3:6]}.{cpf[6:9]}-{cpf[9:]}"
     except Exception as e:
-        # TODO: Implement a version of python logs
         raise e
     
     
@@ -27,5 +26,4 @@ def format_cnpj(cnpj: str):
 
         return f"{cnpj[:2]}.{cnpj[2:5]}.{cnpj[5:8]}/{cnpj[8:12]}-{cnpj[12:]}"
     except Exception as e:
-        # TODO: Implement a version of python logs
         raise e 

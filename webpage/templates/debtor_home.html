@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+{% if user.is_authenticated %}    
+    <div class="row">
+    <div class="col-md-12">
+        {% if debtor %}
+            <h2>Welcome, {{debtor.name}}!</h2>
+        {% else %}
+            <h2>Welcome, {{user.email}}!</h2>
+        {% endif %}
+        <p>Here you can view your debtor profile and check your debts.</p>
+    </div>
+    </div>
+{% endif %}
+{% endblock %}

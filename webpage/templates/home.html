@@ -2,7 +2,7 @@
 {% load filters %}
 {% block content %}
   {% if user.is_authenticated %}
-  {% if perms.view_company %}
+  {% if perms.webpage.view_company %}
     <h1>Companies</h1>
     <table class="table table-hover">
       <thead>

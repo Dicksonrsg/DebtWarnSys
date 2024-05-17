@@ -13,6 +13,7 @@ urlpatterns = [
     path('add_company/', views.add_company, name='add_company'),
     path('update_company/<int:primary_key>', views.update_company, name='update_company'),
     # Debtor
+    path('debtor_home', views.debtor_home, name='debtor_home'),
     path('add_debtor/', views.add_debtor, name='add_debtor'),
     path('debtor/<int:primary_key>', views.debtor_register, name='debtor'),
     path('update_debtor/<int:primary_key>', views.update_debtor, name='update_debtor'),

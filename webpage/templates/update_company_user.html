@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
-    {% if user.is_authenticated and perms.change_companyuser %}
+    {% if user.is_authenticated and perms.webpage.change_companyuser %}
         <div class="col-md-6 offset-md-3">
             <h1>Update Company User</h1>
             <form method="POST" >

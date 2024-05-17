@@ -6,7 +6,6 @@ def assign_group(user_name: str, role: str):
         "Owner": [
             "add_company",
             "change_company",
-            "delete_company",
             "view_company",
             "add_debtor",
             "change_debtor",
