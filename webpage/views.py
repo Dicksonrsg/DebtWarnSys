@@ -3,7 +3,7 @@ from django.core.handlers.wsgi import WSGIRequest
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, permission_required
-from .forms import SignUpForm, AddressForm, CompanyForm, DebtorForm, DebtForm, CompanyUserForm
+from .forms import SignUpForm, AddressForm, CompanyForm, DebtorForm, DebtForm, CompanyUserForm, UpdatePasswordForm
 from .models import Company, Address, Debtor, Debt, CompanyUser
 from .helper.auth import assign_group
 from .helper.fetcher import get_debtor, get_auth_user, is_debtor, get_company_id
@@ -19,7 +19,7 @@ def home(request: WSGIRequest):
         else:
             return render(request, 'home.html', {'companies':companies})
 
-
+# Register and authentication
 def login_user(request: WSGIRequest):
     if request.method == 'POST':
         user_name = request.POST['email_address']
@@ -86,6 +86,30 @@ def register_user(request: WSGIRequest):
     
     return render(request, 'register.html', {'form':form})
     
+
+@login_required(login_url="login")
+def update_password(request):
+    current_user = request.user
+    if request.method  == 'POST':
+        try:
+            up_form = UpdatePasswordForm(current_user, request.POST)
+            if up_form.is_valid():
+                up_form.save()
+                messages.success(request, "Your Password Has Been Updated...")
+                login(request, current_user)
+                return redirect('home')
+            else:
+                for error in list(up_form.errors.values()):
+                    messages.error(request, error)
+                    return redirect('update_password')
+        except Exception as e:
+            status_code = getattr(e, 'status_code', None)
+            messages.error(request, f"An Exception ocurred: {str(e)}")
+            return render(request, 'error.html', {'status_code': status_code})             
+    else:
+        up_form = UpdatePasswordForm(current_user)
+        return render(request, "update_password.html", {'up_form':up_form})
+
     
 
 # Company

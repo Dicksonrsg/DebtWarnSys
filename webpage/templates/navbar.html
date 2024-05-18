@@ -64,14 +64,16 @@
                 <a class="nav-link" href="{% url "my_debts" %}">My Debts</a>
               </li> 
             {% endif %}
-            <li class="nav-item"> 
-              <a class="nav-link" href="#"><strong>{{user.email}}</strong></a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#"></a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{% url "logout" %}">Log out</a>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <strong>{{user.email}}</strong>
+              </a>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="{% url "update_password" %}">Change password</a></li>
+                <li><a class="dropdown-item" href="#">Update user</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="{% url "logout" %}"><strong>Log out</strong></a></li>
+              </ul>
             </li>
           {% else %}
             <li class="nav-item">
