@@ -85,5 +85,50 @@
           {% endif %}
         </ul>
       </div>
+    <div class="form-check form-switch mx-4">
+      <input
+        class="form-check-input p-2"
+        name="toggleTheme"
+        id="toggleTheme"
+        type="checkbox"
+        role="switch"
+      />
+      <label class="form-check-label" for="toggleTheme" id="toggleThemeLabel" style="color:white">Dark mode</label>
     </div>
-  </nav>
+  </div>
+</nav>
+<script>
+  // Function to set the theme based on user's preference
+  function setTheme(theme) {
+    document.documentElement.setAttribute('data-bs-theme', theme);
+    localStorage.setItem('theme', theme); // Store user's preference
+    // Update the label text based on the new theme
+    document.getElementById('toggleThemeLabel').innerText = theme.charAt(0).toUpperCase() + theme.slice(1) + ' mode';
+  }
+
+  // Function to toggle theme
+  function toggleTheme() {
+    const currentTheme = document.documentElement.getAttribute('data-bs-theme');
+    if (currentTheme === 'dark') {
+      setTheme('light');
+    } else {
+      setTheme('dark');
+    }
+  }
+
+  // Event listener for the dark mode toggle checkbox
+  document.getElementById('toggleTheme').addEventListener('click', toggleTheme);
+
+  // Check if the user has a theme preference stored
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme) {
+    setTheme(savedTheme);
+    // Check the toggle if dark mode is enabled
+    if (savedTheme === 'dark') {
+      document.getElementById('toggleTheme').checked = true;
+    }
+  } else {
+    // Set default theme
+    setTheme('light');
+  }
+</script>

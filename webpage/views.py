@@ -9,16 +9,31 @@ from .helper.auth import assign_group
 from .helper.fetcher import get_debtor, get_auth_user, is_debtor, get_company_id
 
 
+# TODO: Add makefile
+    # TODO: ADD format function (black, isort, autoflake) 
+    # TODO: Actions to run, migrate,...
+# TODO: organize the folders
+
 
 @login_required(login_url="login")
 def home(request: WSGIRequest):
-    # Get only companies from a specific user
-        companies = Company.objects.all()
-        if companies:
+    try:
+        if request.user.is_superuser:
+            companies = Company.objects.all()
             return render(request, 'home.html', {'companies':companies})
         else:
+            company_user = CompanyUser.objects.get(user_auth=request.user)
+            companies = company_user.company.all()
             return render(request, 'home.html', {'companies':companies})
-
+    except Company.DoesNotExist:
+        messages.error(request, "Companies not found")
+        return render(request, 'home.html', {'companies':[]})
+    except Exception as e:
+        status_code = getattr(e, 'status_code', None)
+        messages.error(request, f"An Exception ocurred: {str(e)}")
+        return render(request, 'error.html', {'status_code': status_code})
+        
+                
 # Register and authentication
 def login_user(request: WSGIRequest):
     if request.method == 'POST':
@@ -88,7 +103,7 @@ def register_user(request: WSGIRequest):
     
 
 @login_required(login_url="login")
-def update_password(request):
+def update_password(request: WSGIRequest):
     current_user = request.user
     if request.method  == 'POST':
         try:
@@ -194,7 +209,6 @@ def delete_company(request: WSGIRequest, primary_key: int):
         return render(request, 'error.html', {'status_code': status_code}) 
 
  
-
 # Debtor
 @login_required(login_url="login")
 def add_debtor(request: WSGIRequest):
@@ -219,6 +233,7 @@ def add_debtor(request: WSGIRequest):
             return render(request, 'error.html', {'status_code': status_code}) 
                         
     return render(request, 'add_debtor.html', {'debtor_form':debtor_form, 'address_form': address_form})
+
 
 @login_required(login_url="login")
 @permission_required(perm="webpage.view_debtor", login_url="login", raise_exception=True)
@@ -302,6 +317,11 @@ def update_debtor(request: WSGIRequest, primary_key: int):
 def delete_debtor(request: WSGIRequest, primary_key: int):
     try:
         to_be_deleted = Debtor.objects.get(id=primary_key)
+        current_user = Debtor.objects.get(user_auth=request.user)
+        if to_be_deleted == current_user:
+            messages.error(request, "Sorry, You can not delete yourself")
+            return redirect('home') 
+        
         to_be_deleted.delete()
         messages.success(request, "Debtor deleted successfully")
         return redirect('home')
@@ -537,5 +557,3 @@ def delete_company_user(request: WSGIRequest, primary_key: int):
         messages.error(request, f"An Exception ocurred: {str(e)}")
         return render(request, 'error.html', {'status_code': status_code}) 
     
-    
-# TODO: Create page and function to change login credentials
