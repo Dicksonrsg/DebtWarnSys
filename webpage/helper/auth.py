@@ -53,14 +53,14 @@ def assign_group(user_name: str, role: str):
             "view_debt",
         ],
     }
-    
+
     try:
         user = User.objects.get(username=user_name)
         group, created = Group.objects.get_or_create(name=role)
         for perm in perms_by_role[role]:
             permission = Permission.objects.get(
                 codename=perm,
-            )        
+            )
             group.permissions.add(permission)
         user.groups.add(group)
     except Exception as e:

@@ -1,16 +1,18 @@
-from webpage.models import Debtor, CompanyUser, Company
 from django.contrib.auth.models import User
 
-def get_debtor(cpf:str) -> Debtor:
+from webpage.models import Company, CompanyUser, Debtor
+
+
+def get_debtor(cpf: str) -> Debtor:
     try:
         return Debtor.objects.get(cpf=cpf)
     except Debtor.DoesNotExist:
         return None
     except Exception as e:
         raise e
-    
-    
-def is_debtor(auth_user:User) -> bool:
+
+
+def is_debtor(auth_user: User) -> bool:
     try:
         debtor = Debtor.objects.get(user_auth=auth_user)
         if debtor:
@@ -19,9 +21,9 @@ def is_debtor(auth_user:User) -> bool:
         return False
     except Exception as e:
         raise e
-    
 
-def get_company_id(auth_user:User) -> int:
+
+def get_company_id(auth_user: User) -> int:
     try:
         company_user = CompanyUser.objects.get(user_auth=auth_user)
         # Returns the first object
@@ -33,9 +35,9 @@ def get_company_id(auth_user:User) -> int:
         raise e
     except Exception as e:
         raise e
-    
 
-def get_auth_user(user_id:int) -> User:
+
+def get_auth_user(user_id: int) -> User:
     try:
         return User.objects.get(id=user_id)
     except User.DoesNotExist as error:

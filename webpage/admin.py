@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import Company, CompanyUser, Debtor, Debt, Address
+
+from .models import Address, Company, CompanyUser, Debt, Debtor
 
 admin.site.register(Company)
 admin.site.register(CompanyUser)

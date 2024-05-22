@@ -1,8 +1,7 @@
-from django.db import models
 from django.contrib.auth.admin import User
+from django.db import models
 from django_countries.fields import CountryField
 from localflavor.br.models import BRStateField
-
 
 
 class Address(models.Model):
@@ -13,7 +12,7 @@ class Address(models.Model):
     state = BRStateField(blank=False, null=False)
     country = CountryField(blank_label="(select country)")
     details = models.CharField(max_length=140, blank=True, null=True)
-    
+
 
 class Person(models.Model):
     user_auth = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -22,8 +21,8 @@ class Person(models.Model):
     name = models.CharField(max_length=140)
     cpf = models.CharField(max_length=11, unique=True, blank=False, null=False)
     phone = models.CharField(max_length=14)
-    address = models.ForeignKey(Address, on_delete = models.CASCADE)
-    
+    address = models.ForeignKey(Address, on_delete=models.CASCADE)
+
     class Meta:
         abstract = True
 
@@ -34,47 +33,47 @@ class Company(models.Model):
     trading_name = models.CharField(max_length=140, blank=False, null=False)
     company_name = models.CharField(max_length=140, blank=False, null=False)
     cnpj = models.CharField(max_length=14, unique=True)
-    phone = models.CharField(max_length=14, default='')
-    address = models.ForeignKey(Address, on_delete = models.CASCADE)
-    
-    def __str__(self) -> str:
-        return(f"Name: {self.company_name}") 
+    phone = models.CharField(max_length=14, default="")
+    address = models.ForeignKey(Address, on_delete=models.CASCADE)
 
-    
+    def __str__(self) -> str:
+        return f"Name: {self.company_name}"
+
+
 class CompanyUser(Person):
-    OWNER = 'Owner'
-    ADMIN = 'Admin'
-    WORKER = 'Worker'
+    OWNER = "Owner"
+    ADMIN = "Admin"
+    WORKER = "Worker"
     ROLE = [
-        (OWNER, 'Owner - All power'),
-        (ADMIN, 'Admin - Administrative'),
-        (WORKER, 'Worker - Operation level'),
+        (OWNER, "Owner - All power"),
+        (ADMIN, "Admin - Administrative"),
+        (WORKER, "Worker - Operation level"),
     ]
-    
+
     role = models.CharField(max_length=9, choices=ROLE, default=WORKER)
     company = models.ManyToManyField(Company)
-    
+
     def __str__(self) -> str:
-        return(f"Name: {self.name}")
-    
-    
+        return f"Name: {self.name}"
+
+
 class Debtor(Person):
-    active = models.BooleanField(default=True)  
-          
+    active = models.BooleanField(default=True)
+
     def __str__(self) -> str:
-        return(f"Name: {self.name}")   
-    
-    
+        return f"Name: {self.name}"
+
+
 class Debt(models.Model):
-    PAID = 'Paid'
-    PAST_DUE = 'Past Due'
-    CONTESTED = 'Contested'
+    PAID = "Paid"
+    PAST_DUE = "Past Due"
+    CONTESTED = "Contested"
     STATUS = [
-        (PAID, 'Paid - Debt was paid'),
-        (PAST_DUE,'Past due - Debt has not been paid'),
-        (CONTESTED,'Contested - Debt has been contested'),
+        (PAID, "Paid - Debt was paid"),
+        (PAST_DUE, "Past due - Debt has not been paid"),
+        (CONTESTED, "Contested - Debt has been contested"),
     ]
-    
+
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.EmailField(blank=False, null=False)
     updated_at = models.DateTimeField(auto_now_add=True)
@@ -84,9 +83,8 @@ class Debt(models.Model):
     value = models.FloatField(blank=False, null=False)
     times_contacted = models.IntegerField(blank=True, null=True)
     last_contact = models.DateTimeField(blank=True, null=True)
-    creditor = models.ForeignKey(Company, on_delete = models.CASCADE)
-    debtor = models.ForeignKey(Debtor, on_delete = models.CASCADE)
-    
+    creditor = models.ForeignKey(Company, on_delete=models.CASCADE)
+    debtor = models.ForeignKey(Debtor, on_delete=models.CASCADE)
+
     def __str__(self) -> str:
-        return(f"Contract: {self.contract}")
-    
+        return f"Contract: {self.contract}"
