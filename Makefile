@@ -1,3 +1,6 @@
+install:
+	@poetry install
+
 run:
 	@python manage.py runserver
 
