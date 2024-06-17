@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 from core import settings
@@ -64,16 +65,24 @@ WSGI_APPLICATION = "dws.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.mysql",
-        "NAME": settings.DB_NAME,
-        "USER": settings.DB_USER,
-        "PASSWORD": settings.DB_PASSWORD,
-        "HOST": settings.DB_HOST,
-        "PORT": settings.DB_PORT,
+if os.getenv('DJANGO_ENV') == 'test':
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': ':memory:',
+        }
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.mysql",
+            "NAME": settings.DB_NAME,
+            "USER": settings.DB_USER,
+            "PASSWORD": settings.DB_PASSWORD,
+            "HOST": settings.DB_HOST,
+            "PORT": settings.DB_PORT,
+        }
+    }
 
 
 # Password validation
