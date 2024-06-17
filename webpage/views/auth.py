@@ -4,8 +4,8 @@ from django.contrib.auth.decorators import login_required
 from django.core.handlers.wsgi import WSGIRequest
 from django.shortcuts import redirect, render
 
-from ..forms import (SignUpForm, UpdatePasswordForm)
-from ..helper.fetcher import (get_debtor, is_debtor)
+from ..forms import SignUpForm, UpdatePasswordForm
+from ..helper.fetcher import get_debtor, is_debtor
 from ..models import Company, CompanyUser
 
 

@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.core.handlers.wsgi import WSGIRequest
 from django.shortcuts import redirect, render
 
-from ..forms import (AddressForm, DebtorForm)
+from ..forms import AddressForm, DebtorForm
 from ..helper.auth import assign_group
 from ..helper.fetcher import get_auth_user
 from ..models import Address, Debtor

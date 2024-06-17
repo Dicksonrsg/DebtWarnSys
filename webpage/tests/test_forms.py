@@ -1,13 +1,8 @@
 from django.contrib.auth.models import User
 from django.test import TestCase
-from webpage.forms import (
-    SignUpForm,
-    DebtorForm,
-    CompanyUserForm,
-    AddressForm,
-    CompanyForm,
-    DebtForm,
-)
+
+from webpage.forms import (AddressForm, CompanyForm, CompanyUserForm, DebtForm,
+                           DebtorForm, SignUpForm)
 
 
 class SignUpFormTests(TestCase):
@@ -99,15 +94,15 @@ class DebtFormTests(TestCase):
         form.is_valid()
         cleaned_cnpj = form.clean_cnpj()
         self.assertEqual(cleaned_cnpj, "45713317000103")
-        
-        
+
+
 class CompanyUserFormTests(TestCase):
     def test_clean_cpf(self):
         form = CompanyUserForm(data={"cpf": "123.456.789-10"})
         form.is_valid()
         cleaned_cnpj = form.clean_cpf()
         self.assertEqual(cleaned_cnpj, "12345678910")
-        
+
     def test_clean_phone(self):
         form = CompanyUserForm(data={"phone": "(12) 34567-8901"})
         form.is_valid()

@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.core.handlers.wsgi import WSGIRequest
 from django.shortcuts import redirect, render
 
-from webpage.forms import (AddressForm, CompanyForm)
+from webpage.forms import AddressForm, CompanyForm
 from webpage.models import Address, Company
 
 

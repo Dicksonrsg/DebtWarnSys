@@ -3,9 +3,9 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.core.handlers.wsgi import WSGIRequest
 from django.shortcuts import redirect, render
 
-from ..forms import (AddressForm, CompanyUserForm)
+from ..forms import AddressForm, CompanyUserForm
 from ..helper.auth import assign_group
-from ..helper.fetcher import (get_auth_user, get_company_id)
+from ..helper.fetcher import get_auth_user, get_company_id
 from ..models import Company, CompanyUser
 
 
